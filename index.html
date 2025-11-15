@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Traefikr - Stop wrestling with YAML files. Manage your Traefik configuration with a beautiful, intuitive interface.">
+    <meta name="keywords" content="traefik, configuration, management, gui, web interface">
+    <meta name="author" content="Traefikr Team">
+    <title>Traefikr - The Missing GUI for Traefik</title>
+    <style>
+        :root {
+            --primary-color: #00aec1;
+            --secondary-color: #1e3a8a;
+            --text-color: #1f2937;
+            --text-light: #6b7280;
+            --bg-color: #ffffff;
+            --bg-light: #f9fafb;
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 4rem 0 4.5rem 0;
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+            letter-spacing: -0.5px;
+        }
+
+        .tagline {
+            font-size: 1.125rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+            font-weight: 400;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease-out 0.5s both;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.75rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-decoration: none;
+            border-radius: 0.375rem;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        section {
+            padding: 4rem 0;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+        }
+
+        section:nth-child(even) {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 0.75rem;
+            color: var(--text-color);
+            letter-spacing: -0.5px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 1rem;
+            margin-bottom: 2.5rem;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        .problem-statement {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 800px;
+            border-radius: 0.5rem;
+        }
+
+        .problem-statement h3 {
+            color: #92400e;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .problem-statement ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .problem-statement li {
+            padding: 0.5rem 0;
+            color: #78350f;
+        }
+
+        .problem-statement li:before {
+            content: "❌ ";
+            margin-right: 0.5rem;
+        }
+
+        .benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .benefit-card {
+            background: #ffffff;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .benefit-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 1rem;
+            background: linear-gradient(135deg, #fd8d6c, #f87a5a);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+        }
+
+        .benefit-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .benefit-card h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #1e3a8a;
+            letter-spacing: -0.25px;
+        }
+
+        .benefit-card p {
+            color: var(--text-light);
+            line-height: 1.65;
+            font-size: 0.9rem;
+        }
+
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin: 3rem 0;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .comparison-card {
+            padding: 2rem;
+            border-radius: 1rem;
+        }
+
+        .comparison-card.before {
+            background: #e0f2fe;
+            border: 2px solid #0284c7;
+        }
+
+        .comparison-card.after {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+        }
+
+        .comparison-card h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .comparison-card.before h3 {
+            color: #075985;
+        }
+
+        .comparison-card.after h3 {
+            color: #065f46;
+        }
+
+        .comparison-card ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .comparison-card li {
+            padding: 0.75rem 0;
+            line-height: 1.6;
+        }
+
+        .comparison-card.before li:before {
+            content: "→ ";
+            margin-right: 0.5rem;
+            font-weight: bold;
+            color: #0284c7;
+        }
+
+        .comparison-card.after li:before {
+            content: "✓ ";
+            margin-right: 0.5rem;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            overflow-x: auto;
+            margin: 2rem auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            box-shadow: var(--shadow);
+            max-width: 700px;
+        }
+
+        .code-block code {
+            color: #38bdf8;
+        }
+
+        .architecture-diagram {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        }
+
+        footer {
+            background: #1f2937;
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .tagline {
+                font-size: 1.25rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+
+            .benefits {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <img src="traefikr_logo.svg" alt="Traefikr Logo" class="logo">
+            <h1>Traefikr</h1>
+            <p class="tagline">Stop wrestling with YAML files</p>
+            <p class="subtitle">The missing GUI for Traefik v3 - Manage your reverse proxy with clicks, not code</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/allfro/traefikr" class="btn btn-primary">View on GitHub</a>
+                <a href="#quick-start" class="btn btn-secondary">Get Started</a>
+            </div>
+        </div>
+    </header>
+
+    <section id="what-we-do">
+        <div class="container">
+            <h2>Traefik Configuration, Beautifully Simple</h2>
+            <p class="section-subtitle">
+                A modern web interface that makes managing Traefik as easy as clicking a button.
+                No YAML files, no syntax errors - just a clean, intuitive dashboard that works.
+            </p>
+
+            <div class="benefits">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                        </svg>
+                    </div>
+                    <h3>Visual Dashboard</h3>
+                    <p>
+                        See all your routers, services, and middlewares in one place.
+                        Know exactly what's running without digging through files.
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+                        </svg>
+                    </div>
+                    <h3>Instant Configuration</h3>
+                    <p>
+                        Create and update Traefik resources in seconds with intuitive forms.
+                        Changes sync automatically - no restarts needed.
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                        </svg>
+                    </div>
+                    <h3>Built-in Validation</h3>
+                    <p>
+                        Real-time schema validation catches errors before they happen.
+                        Inline documentation guides you every step of the way.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="benefits">
+        <div class="container">
+            <h2>Why Teams Love Traefikr</h2>
+            <div class="benefits">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                        </svg>
+                    </div>
+                    <h3>Save Hours Every Week</h3>
+                    <p>
+                        What used to take 30 minutes of YAML editing now takes 30 seconds.
+                        Create routers, configure middlewares, and manage SSL certificates with just a few clicks.
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                        </svg>
+                    </div>
+                    <h3>Stop Breaking Things</h3>
+                    <p>
+                        Built-in validation catches errors before they hit production.
+                        No more syntax errors, no more missing fields, no more 3am outages.
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                        </svg>
+                    </div>
+                    <h3>See Everything</h3>
+                    <p>
+                        Visual dashboard shows all your routers, services, and middlewares at a glance.
+                        Know exactly what's running and where - no SSH required.
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        </svg>
+                    </div>
+                    <h3>Onboard in Minutes</h3>
+                    <p>
+                        New team members can start managing Traefik immediately.
+                        No need to learn YAML syntax or memorize file locations.
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+                        </svg>
+                    </div>
+                    <h3>Real-time Sync</h3>
+                    <p>
+                        Changes take effect instantly. Traefik polls for updates automatically -
+                        no restarts, no downtime, no hassle.
+                    </p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                        </svg>
+                    </div>
+                    <h3>Secure by Default</h3>
+                    <p>
+                        Role-based access control, JWT authentication, and API key management.
+                        Keep your infrastructure secure without the complexity.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works">
+        <div class="container">
+            <h2>How It Works</h2>
+            <p class="section-subtitle">
+                Traefikr acts as an HTTP provider for Traefik, giving you a friendly interface
+                while Traefik does what it does best - routing traffic.
+            </p>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 3rem; max-width: 700px; margin: 2rem auto; flex-wrap: wrap;">
+                <!-- Traefik -->
+                <div style="text-align: center;">
+                    <img src="https://doc.traefik.io/traefik/assets/img/traefik.logo.png" alt="Traefik" style="width: 120px; height: 120px;">
+                </div>
+
+                <!-- Connection -->
+                <div style="text-align: center; flex-shrink: 0;">
+                    <div style="font-size: 2.5rem; color: #00aec1; line-height: 1;">⟷</div>
+                    <div style="font-size: 0.85rem; color: #6b7280; margin-top: 0.5rem; white-space: nowrap;">Syncs via HTTP</div>
+                </div>
+
+                <!-- Traefikr -->
+                <div style="text-align: center;">
+                    <img src="traefikr_logo.svg" alt="Traefikr" style="width: 120px; height: 120px;">
+                </div>
+            </div>
+            <p style="text-align: center; color: var(--text-light); margin-top: 2rem; font-size: 1.1rem;">
+                You configure via the web UI. Traefik automatically picks up changes. Everyone's happy.
+            </p>
+        </div>
+    </section>
+
+    <section id="quick-start">
+        <div class="container">
+            <h2>Get Started in 60 Seconds</h2>
+            <p class="section-subtitle">
+                One command. That's all it takes.
+            </p>
+            <div class="code-block">
+# Clone and start<br>
+<code>git clone https://github.com/allfro/traefikr.git</code><br>
+<code>cd traefikr</code><br>
+<code>docker-compose up -d</code><br>
+<br>
+# Get your admin password<br>
+<code>docker-compose logs backend | grep "Initial Admin" -A 3</code><br>
+<br>
+# Open http://localhost and start managing Traefik!
+            </div>
+            <p style="text-align: center; margin-top: 2rem; color: var(--text-light);">
+                First startup creates an admin account with a secure random password. Save it and you're ready to go!
+            </p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>Made with ❤️ by the Traefikr team</p>
+            <p style="margin-top: 0.5rem;">
+                <a href="https://github.com/allfro/traefikr">GitHub</a> •
+                <a href="https://github.com/allfro/traefikr/issues">Issues</a> •
+                <a href="https://traefik.io/">Traefik</a>
+            </p>
+            <p style="margin-top: 1rem; font-size: 0.875rem; opacity: 0.8;">
+                Licensed under MIT • Traefik is a trademark of Traefik Labs
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
