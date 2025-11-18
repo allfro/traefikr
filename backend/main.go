@@ -53,11 +53,11 @@ func main() {
 			log.Fatalf("Failed to create admin user: %v", err)
 		}
 
-		fmt.Println("=" + string(make([]byte, 50)))
+		fmt.Println("======================================")
 		fmt.Printf("Initial Admin Credentials\n")
 		fmt.Printf("Username: admin\n")
 		fmt.Printf("Password: %s\n", password)
-		fmt.Println("=" + string(make([]byte, 50)))
+		fmt.Println("======================================")
 		fmt.Println("Please save these credentials! The password will not be shown again.")
 	}
 
@@ -114,7 +114,6 @@ func setupRoutes(r *gin.Engine, userRepo *dal.UserRepository, apiKeyRepo *dal.AP
 	// Initialize handlers
 	resourceHandler := handlers.NewResourceHandler(configRepo)
 	configHandler := handlers.NewConfigHandler(configRepo)
-	entrypointsHandler := handlers.NewEntrypointsHandler()
 	providerHandler := handlers.NewProviderHandler(apiKeyRepo)
 	authHandler := handlers.NewAuthHandler(userRepo)
 
@@ -149,10 +148,6 @@ func setupRoutes(r *gin.Engine, userRepo *dal.UserRepository, apiKeyRepo *dal.AP
 			protected.POST("/:protocol/:type", resourceHandler.CreateResource)
 			protected.PUT("/:protocol/:type/:nameProvider", resourceHandler.UpdateResource)
 			protected.DELETE("/:protocol/:type/:nameProvider", resourceHandler.DeleteResource)
-
-			// Entrypoints (read-only)
-			protected.GET("/entrypoints", entrypointsHandler.ListEntrypoints)
-			protected.GET("/entrypoints/:name", entrypointsHandler.GetEntrypoint)
 
 			// Provider (API key management for Traefik)
 			protected.GET("/http/provider", providerHandler.ListAPIKeys)

@@ -33,10 +33,10 @@ export default function HTTPServerTransportForm() {
 
   // Fetch existing transport in edit mode
   const { data: existingTransport, isLoading: isLoadingTransport } = useQuery({
-    queryKey: ['resources', 'http', 'serversTransport', name],
+    queryKey: ['resources', 'http', 'serversTransports', name],
     queryFn: async () => {
       if (!name) return null
-      const response = await resourcesApi.get('http', 'serversTransport', name)
+      const response = await resourcesApi.get('http', 'serversTransports', name)
       return response.data
     },
     enabled: isEditMode,
@@ -57,7 +57,7 @@ export default function HTTPServerTransportForm() {
   // Create mutation
   const createMutation = useMutation({
     mutationFn: async () => {
-      const response = await resourcesApi.create('http', 'serversTransport', formData)
+      const response = await resourcesApi.create('http', 'serversTransports', formData)
       return response.data
     },
     onSuccess: () => {
@@ -67,7 +67,7 @@ export default function HTTPServerTransportForm() {
         color: 'green',
       })
       queryClient.invalidateQueries({ queryKey: ['tcp-server-transports'] })
-      navigate('/transports')
+      navigate('/serversTransports')
     },
     onError: (error: any) => {
       notifications.show({
@@ -82,7 +82,7 @@ export default function HTTPServerTransportForm() {
   const updateMutation = useMutation({
     mutationFn: async () => {
       if (!name) throw new Error('No transport name provided')
-      const response = await resourcesApi.update('http', 'serversTransport', `${name}`, {
+      const response = await resourcesApi.update('http', 'serversTransports', `${name}`, {
         enabled: formData.enabled,
         config: formData.config,
       })
@@ -95,7 +95,7 @@ export default function HTTPServerTransportForm() {
         color: 'green',
       })
       queryClient.invalidateQueries({ queryKey: ['tcp-server-transports'] })
-      navigate('/transports')
+      navigate('/serversTransports')
     },
     onError: (error: any) => {
       notifications.show({
@@ -156,7 +156,7 @@ export default function HTTPServerTransportForm() {
           <Button
             variant="subtle"
             leftSection={<IconArrowLeft size={16} />}
-            onClick={() => navigate('/transports')}
+            onClick={() => navigate('/serversTransports')}
           >
             Back
           </Button>
@@ -197,7 +197,7 @@ export default function HTTPServerTransportForm() {
             <Card shadow="sm" radius="md" withBorder>
               <SchemaForm
                 protocol="http"
-                type="serversTransport"
+                type="serversTransports"
                 value={formData.config}
                 onChange={(newConfig) => setFormData({ ...formData, config: newConfig })}
                 disabled={isSubmitting}
@@ -206,7 +206,7 @@ export default function HTTPServerTransportForm() {
 
             {/* Actions */}
             <Group justify="flex-end">
-              <Button variant="default" onClick={() => navigate('/transports')} disabled={isSubmitting}>
+              <Button variant="default" onClick={() => navigate('/serversTransports')} disabled={isSubmitting}>
                 Cancel
               </Button>
               <Button

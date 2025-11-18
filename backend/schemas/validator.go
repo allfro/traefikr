@@ -35,8 +35,8 @@ var tcpServicesSchema string
 //go:embed tcp_middlewares.json
 var tcpMiddlewaresSchema string
 
-//go:embed tcp_serversTransport.json
-var tcpServersTransportSchema string
+//go:embed tcp_serversTransports.json
+var tcpServersTransportsSchema string
 
 //go:embed tcp_tls.json
 var tcpTLSSchema string
@@ -50,30 +50,30 @@ var udpServicesSchema string
 //go:embed udp_middlewares.json
 var udpMiddlewaresSchema string
 
-//go:embed entrypoints.json
+//go:embed any_entrypoints.json
 var entrypointsSchema string
 
 var schemaMap = map[string]map[string]string{
 	"http": {
-		"routers":          httpRoutersSchema,
-		"services":         httpServicesSchema,
-		"middlewares":      httpMiddlewaresSchema,
-		"serversTransport": httpServersTransportSchema,
-		"tls":              httpTLSSchema,
+		"routers":           httpRoutersSchema,
+		"services":          httpServicesSchema,
+		"middlewares":       httpMiddlewaresSchema,
+		"serversTransports": httpServersTransportSchema,
+		"tls":               httpTLSSchema,
 	},
 	"tcp": {
-		"routers":          tcpRoutersSchema,
-		"services":         tcpServicesSchema,
-		"middlewares":      tcpMiddlewaresSchema,
-		"serversTransport": tcpServersTransportSchema,
-		"tls":              tcpTLSSchema,
+		"routers":           tcpRoutersSchema,
+		"services":          tcpServicesSchema,
+		"middlewares":       tcpMiddlewaresSchema,
+		"serversTransports": tcpServersTransportsSchema,
+		"tls":               tcpTLSSchema,
 	},
 	"udp": {
 		"routers":     udpRoutersSchema,
 		"services":    udpServicesSchema,
 		"middlewares": udpMiddlewaresSchema,
 	},
-	"entrypoints": {
+	"any": {
 		"entrypoints": entrypointsSchema,
 	},
 }

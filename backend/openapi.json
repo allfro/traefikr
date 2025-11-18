@@ -313,7 +313,7 @@
         "schema": {
           "type": "string"
         },
-        "description": "Resource type (routers, services, middlewares, serversTransport, tls)",
+        "description": "Resource type (routers, services, middlewares, serversTransports, tls)",
         "example": "routers"
       },
       "NameProviderParam": {

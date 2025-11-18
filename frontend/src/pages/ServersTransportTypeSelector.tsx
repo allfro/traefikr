@@ -16,7 +16,7 @@ import { useNavigate } from 'react-router-dom'
 
 type TransportType = 'http' | 'tcp'
 
-export default function TransportTypeSelector() {
+export default function ServersTransportTypeSelector() {
   const navigate = useNavigate()
   const [transportType, setTransportType] = useState<TransportType>('http')
 
@@ -49,7 +49,7 @@ export default function TransportTypeSelector() {
               Choose the type of server transport you want to create
             </Text>
           </div>
-          <Button variant="subtle" onClick={() => navigate('/transports')}>
+          <Button variant="subtle" onClick={() => navigate('/serversTransports')}>
             Back to Transports
           </Button>
         </Group>
@@ -92,7 +92,7 @@ export default function TransportTypeSelector() {
           <Button
             size="md"
             rightSection={<IconArrowRight size={16} />}
-            onClick={() => navigate(`/transports/new/${transportType}`)}
+            onClick={() => navigate(`/serversTransports/new/${transportType}`)}
           >
             Continue
           </Button>

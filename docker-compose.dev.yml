@@ -2,47 +2,69 @@ services:
   traefik:
     image: traefik:v3.6
     command:
-      - "--api.insecure=true"
+      #      - "--api.insecure=true"
       - "--api.dashboard=true"
+      - "--api.disabledashboardad=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedByDefault=false"
-      - "--providers.http.endpoint=http://backend:8080/api/config"
-      - "--providers.http.headers.x-traefikr-key=sk_pxeZDx99Dx26iE7IhyQy2D-B42UF6aZSFUZolVM8ExM="
+      - "--providers.http.endpoint=http://traefikr:8080/api/config"
       - "--providers.http.pollInterval=5s"
+      - "--providers.file.directory=/etc/traefik/dynamic"
+      - "--providers.file.watch=true"
       - "--entrypoints.web.address=:80"
       - "--entrypoints.websecure.address=:443"
       - "--log.level=DEBUG"
+      # Enable this once you have generated an api key and replace the key below with the one you generated.
+      #- "--providers.http.headers.x-traefikr-key=sk_pxeZDx99Dx26iE7IhyQy2D-B42UF6aZSFUZolVM8ExM="
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"  # Traefik API & Dashboard
+    #      - "8080:8080"  # Traefik API & Dashboard
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./data/dynamic:/etc/traefik/dynamic:ro
     networks:
       - traefikr
-    depends_on:
-      - backend
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=(Host(`traefik.localhost`) || Host(`traefik`)) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=auth"
+      - "traefik.http.middlewares.auth.basicauth.users=test:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/"
 
-  backend:
+  traefikr:
+    # Option 1: Use pre-built image from GitHub Container Registry (recommended for production)
+    # image: ghcr.io/allfro/traefikr:latest
+
+    # Option 2: Build from source (for development)
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
+
     environment:
       - TRAEFIKR_DB_PATH=/data/traefikr.db
-      - TRAEFIKR_PORT=8080
-      - TRAEFIK_API_URL=http://traefik:8080
-    ports:
-      - "8000:8080"  # Expose backend API on host port 8000
+      - TRAEFIK_API_URL=http://traefik
+      - TRAEFIK_CONFIG_PATH=/traefik/dynamic
+      # Traefik API authentication (uncomment if api.insecure=false and using basic auth)
+      - TRAEFIK_BASIC_AUTH_USERNAME=test
+      - TRAEFIK_BASIC_AUTH_PASSWORD=test
+      - GIN_MODE=release
+      # Traefik API authentication (uncomment if api.insecure=false and using api header auth)
+      # - TRAEFIK_API_KEY_HEADER=X-API-Key
+      # - TRAEFIK_API_KEY_SECRET=your-api-key
     volumes:
-      - backend-data:/data
+      - ./data:/data
+      - ./data/dynamic:/traefik/dynamic
     networks:
       - traefikr
     restart: unless-stopped
 
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`api.localhost`)"
-      - "traefik.http.services.backend.loadbalancer.server.port=8080"
+      # Route for the web UI (http://traefikr.localhost). Add to /etc/hosts if necessary
+      - "traefik.http.routers.traefikr.rule=Host(`api.localhost`)"
+      - "traefik.http.routers.traefikr.service=traefikr"
+      - "traefik.http.services.traefikr.loadbalancer.server.port=8080"
 
   frontend:
     build:
@@ -59,14 +81,12 @@ services:
       - traefikr
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`manager.localhost`)"
+      - "traefik.http.routers.frontend.rule=Host(`traefikr.localhost`)"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
 
   # Example services to manage
   whoami:
     image: traefik/whoami
-    deploy:
-      replicas: 2
     networks:
       - traefikr
     labels:

@@ -50,7 +50,7 @@ func (r *TraefikConfigRepository) FindAllEnabled() ([]models.TraefikConfig, erro
 // FindServerTransports finds all enabled serverTransport configs
 func (r *TraefikConfigRepository) FindServerTransports() ([]models.TraefikConfig, error) {
 	var configs []models.TraefikConfig
-	err := r.db.Where("type = ? AND enabled = ?", "serversTransport", true).Find(&configs).Error
+	err := r.db.Where("type = ? AND enabled = ?", "serversTransports", true).Find(&configs).Error
 	return configs, err
 }
 

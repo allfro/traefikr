@@ -10,7 +10,7 @@ type TraefikConfig struct {
 	Name     string `gorm:"primaryKey" json:"name"`
 	Provider string `gorm:"primaryKey;default:http" json:"provider"`
 	Protocol string `gorm:"primaryKey" json:"protocol"` // http, tcp, udp
-	Type     string `gorm:"primaryKey" json:"type"`     // routers, middlewares, services, serversTransport, tls
+	Type     string `gorm:"primaryKey" json:"type"`     // routers, middlewares, services, serversTransports, tls
 	Enabled  bool   `gorm:"default:true" json:"enabled"`
 	Config   JSON   `gorm:"type:text" json:"config"` // JSON blob
 }

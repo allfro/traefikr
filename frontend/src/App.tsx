@@ -21,8 +21,8 @@ import Entrypoints from '@/pages/Entrypoints'
 import TLS from '@/pages/TLS'
 import TLSCertificateForm from '@/pages/TLSCertificateForm'
 import TLSOptionForm from '@/pages/TLSOptionForm'
-import Transports from '@/pages/Transports'
-import TransportTypeSelector from '@/pages/TransportTypeSelector'
+import ServersTransports from '@/pages/ServersTransports.tsx'
+import ServersTransportTypeSelector from '@/pages/ServersTransportTypeSelector.tsx'
 import HTTPServerTransportForm from '@/pages/HTTPServerTransportForm'
 import TCPServerTransportForm from '@/pages/TCPServerTransportForm'
 import Login from '@/pages/Login'
@@ -74,12 +74,12 @@ function App() {
           <Route path="tls/certificates/:name/edit" element={<TLSCertificateForm />} />
           <Route path="tls/options/new" element={<TLSOptionForm />} />
           <Route path="tls/options/:name/edit" element={<TLSOptionForm />} />
-          <Route path="transports" element={<Transports />} />
-          <Route path="transports/new" element={<TransportTypeSelector />} />
-          <Route path="transports/new/http" element={<HTTPServerTransportForm />} />
-          <Route path="transports/new/tcp" element={<TCPServerTransportForm />} />
-          <Route path="transports/http/:name/edit" element={<HTTPServerTransportForm />} />
-          <Route path="transports/tcp/:name/edit" element={<TCPServerTransportForm />} />
+          <Route path="serversTransports" element={<ServersTransports />} />
+          <Route path="serversTransports/new" element={<ServersTransportTypeSelector />} />
+          <Route path="serversTransports/new/http" element={<HTTPServerTransportForm />} />
+          <Route path="serversTransports/new/tcp" element={<TCPServerTransportForm />} />
+          <Route path="serversTransports/http/:name/edit" element={<HTTPServerTransportForm />} />
+          <Route path="serversTransports/tcp/:name/edit" element={<TCPServerTransportForm />} />
         </Route>
       </Routes>
     </AuthProvider>

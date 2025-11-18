@@ -26,8 +26,8 @@ api.interceptors.response.use(
 )
 
 // Type definitions matching backend API
-export type Protocol = 'http' | 'tcp' | 'udp'
-export type ResourceType = 'routers' | 'services' | 'middlewares' | 'serversTransport' | 'tls'
+export type Protocol = 'http' | 'tcp' | 'udp' | 'any'
+export type ResourceType = 'routers' | 'services' | 'middlewares' | 'serversTransports' | 'tls' | 'entrypoints'
 
 export interface Resource {
   name: string // name@provider format
@@ -132,8 +132,8 @@ export const resourcesApi = {
     api.put<Resource>(`/api/${protocol}/${type}/${nameProvider}`, resource),
 
   // Delete resource
-  delete: (protocol: Protocol, type: ResourceType, nameProvider: string) =>
-    api.delete(`/api/${protocol}/${type}/${nameProvider}`),
+  delete: (protocol: Protocol, type: ResourceType, provider: string, name: string) =>
+    api.delete(`/api/${protocol}/${type}/${name}@${provider}`),
 }
 
 // Entrypoints API (read-only)

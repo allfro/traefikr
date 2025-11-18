@@ -33,10 +33,10 @@ export default function TCPServerTransportForm() {
 
   // Fetch existing transport in edit mode
   const { data: existingTransport, isLoading: isLoadingTransport } = useQuery({
-    queryKey: ['resources', 'tcp', 'serversTransport', name],
+    queryKey: ['resources', 'tcp', 'serversTransports', name],
     queryFn: async () => {
       if (!name) return null
-      const response = await resourcesApi.get('tcp', 'serversTransport', name)
+      const response = await resourcesApi.get('tcp', 'serversTransports', name)
       return response.data
     },
     enabled: isEditMode,
@@ -57,7 +57,7 @@ export default function TCPServerTransportForm() {
   // Create mutation
   const createMutation = useMutation({
     mutationFn: async () => {
-      const response = await resourcesApi.create('tcp', 'serversTransport', formData)
+      const response = await resourcesApi.create('tcp', 'serversTransports', formData)
       return response.data
     },
     onSuccess: () => {
@@ -67,7 +67,7 @@ export default function TCPServerTransportForm() {
         color: 'green',
       })
       queryClient.invalidateQueries({ queryKey: ['tcp-server-transports'] })
-      navigate('/transports')
+      navigate('/serversTransports')
     },
     onError: (error: any) => {
       notifications.show({
@@ -82,7 +82,7 @@ export default function TCPServerTransportForm() {
   const updateMutation = useMutation({
     mutationFn: async () => {
       if (!name) throw new Error('No transport name provided')
-      const response = await resourcesApi.update('tcp', 'serversTransport', name, {
+      const response = await resourcesApi.update('tcp', 'serversTransports', name, {
         enabled: formData.enabled,
         config: formData.config,
       })
@@ -95,7 +95,7 @@ export default function TCPServerTransportForm() {
         color: 'green',
       })
       queryClient.invalidateQueries({ queryKey: ['tcp-server-transports'] })
-      navigate('/transports')
+      navigate('/serversTransports')
     },
     onError: (error: any) => {
       notifications.show({
@@ -156,7 +156,7 @@ export default function TCPServerTransportForm() {
           <Button
             variant="subtle"
             leftSection={<IconArrowLeft size={16} />}
-            onClick={() => navigate('/transports')}
+            onClick={() => navigate('/serversTransports')}
           >
             Back
           </Button>
@@ -197,7 +197,7 @@ export default function TCPServerTransportForm() {
             <Card shadow="sm" radius="md" withBorder>
               <SchemaForm
                 protocol="tcp"
-                type="serversTransport"
+                type="serversTransports"
                 value={formData.config}
                 onChange={(newConfig) => setFormData({ ...formData, config: newConfig })}
                 disabled={isSubmitting}
@@ -206,7 +206,7 @@ export default function TCPServerTransportForm() {
 
             {/* Actions */}
             <Group justify="flex-end">
-              <Button variant="default" onClick={() => navigate('/transports')} disabled={isSubmitting}>
+              <Button variant="default" onClick={() => navigate('/serversTransports')} disabled={isSubmitting}>
                 Cancel
               </Button>
               <Button

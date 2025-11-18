@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"log"
 	"net/http"
 	"strings"
@@ -36,15 +37,8 @@ func (h *ResourceHandler) ListResources(c *gin.Context) {
 	protocol := c.Param("protocol")
 	resourceType := c.Param("type")
 
-	// Validate protocol
-	if !isValidProtocol(protocol) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid protocol"})
-		return
-	}
-
-	// Validate type
 	if !isValidType(protocol, resourceType) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid type for protocol"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid protocol or resource type"})
 		return
 	}
 
@@ -73,7 +67,7 @@ func (h *ResourceHandler) ListResources(c *gin.Context) {
 		for _, res := range traefikResources {
 			if resMap, ok := res.(map[string]interface{}); ok {
 				if name, nameExists := resMap["name"].(string); nameExists {
-					resourceMap[name] = normalizeTraefikResource(resMap)
+					resourceMap[name] = normalizeTraefikResource(protocol, resourceType, resMap)
 				}
 			}
 		}
@@ -86,8 +80,10 @@ func (h *ResourceHandler) ListResources(c *gin.Context) {
 		resourceMap[key] = map[string]interface{}{
 			"name":     config.Name,
 			"provider": config.Provider,
+			"protocol": config.Protocol,
 			"config":   config.Config,
 			"enabled":  config.Enabled,
+			"type":     config.Type,
 			"source":   "database",
 		}
 	}
@@ -108,13 +104,8 @@ func (h *ResourceHandler) GetResource(c *gin.Context) {
 	nameProvider := c.Param("nameProvider")
 
 	// Validate protocol and type
-	if !isValidProtocol(protocol) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid protocol"})
-		return
-	}
-
 	if !isValidType(protocol, resourceType) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid type for protocol"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid protocol or resource type"})
 		return
 	}
 
@@ -129,6 +120,8 @@ func (h *ResourceHandler) GetResource(c *gin.Context) {
 		c.JSON(http.StatusOK, map[string]interface{}{
 			"name":     config.Name,
 			"provider": config.Provider,
+			"protocol": config.Protocol,
+			"type":     config.Type,
 			"config":   config.Config,
 			"enabled":  config.Enabled,
 			"source":   "database",
@@ -136,7 +129,7 @@ func (h *ResourceHandler) GetResource(c *gin.Context) {
 		return
 	}
 
-	if err != gorm.ErrRecordNotFound {
+	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "database error"})
 		return
 	}
@@ -149,7 +142,7 @@ func (h *ResourceHandler) GetResource(c *gin.Context) {
 	}
 
 	// Normalize and return resource from Traefik
-	c.JSON(http.StatusOK, normalizeTraefikResource(traefikResource))
+	c.JSON(http.StatusOK, normalizeTraefikResource(protocol, resourceType, traefikResource))
 }
 
 // CreateResource handles POST /api/{protocol}/{type}
@@ -157,13 +150,8 @@ func (h *ResourceHandler) CreateResource(c *gin.Context) {
 	protocol := c.Param("protocol")
 	resourceType := c.Param("type")
 
-	if !isValidProtocol(protocol) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid protocol"})
-		return
-	}
-
 	if !isValidType(protocol, resourceType) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid type for protocol"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid protocol or resource type"})
 		return
 	}
 
@@ -179,7 +167,7 @@ func (h *ResourceHandler) CreateResource(c *gin.Context) {
 	}
 
 	// Set provider based on resource type
-	if resourceType == "serversTransport" {
+	if resourceType == "serversTransports" {
 		req.Provider = "file"
 	} else {
 		req.Provider = "http"
@@ -211,7 +199,7 @@ func (h *ResourceHandler) CreateResource(c *gin.Context) {
 	}
 
 	// Write TOML file for serverTransport resources
-	if resourceType == "serversTransport" {
+	if resourceType == "serversTransports" {
 		if err := h.tomlWriter.WriteServerTransport(protocol, resourceType, req.Name, req.Config); err != nil {
 			log.Printf("WARNING: Failed to write TOML file for serverTransport %s@%s (protocol=%s): %v",
 				req.Name, req.Provider, protocol, err)
@@ -227,13 +215,8 @@ func (h *ResourceHandler) UpdateResource(c *gin.Context) {
 	resourceType := c.Param("type")
 	nameProvider := c.Param("nameProvider")
 
-	if !isValidProtocol(protocol) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid protocol"})
-		return
-	}
-
 	if !isValidType(protocol, resourceType) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid type for protocol"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid protocol or resource type"})
 		return
 	}
 
@@ -257,7 +240,7 @@ func (h *ResourceHandler) UpdateResource(c *gin.Context) {
 	// Fetch existing resource
 	config, err := h.repo.FindByKey(name, provider, protocol, resourceType)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "resource not found"})
 			return
 		}
@@ -273,7 +256,7 @@ func (h *ResourceHandler) UpdateResource(c *gin.Context) {
 	}
 
 	// Write TOML file for serverTransport resources
-	if resourceType == "serversTransport" {
+	if resourceType == "serversTransports" {
 		if err := h.tomlWriter.WriteServerTransport(protocol, resourceType, name, req.Config); err != nil {
 			log.Printf("WARNING: Failed to update TOML file for serverTransport %s@%s (protocol=%s): %v",
 				name, provider, protocol, err)
@@ -289,13 +272,8 @@ func (h *ResourceHandler) DeleteResource(c *gin.Context) {
 	resourceType := c.Param("type")
 	nameProvider := c.Param("nameProvider")
 
-	if !isValidProtocol(protocol) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid protocol"})
-		return
-	}
-
 	if !isValidType(protocol, resourceType) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid type for protocol"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid protocol or resource type"})
 		return
 	}
 
@@ -313,7 +291,7 @@ func (h *ResourceHandler) DeleteResource(c *gin.Context) {
 	}
 
 	// Delete TOML file for serverTransport resources
-	if resourceType == "serversTransport" {
+	if resourceType == "serversTransports" {
 		if err := h.tomlWriter.DeleteServerTransport(protocol, resourceType, name); err != nil {
 			log.Printf("WARNING: Failed to delete TOML file for serverTransport %s@%s (protocol=%s): %v",
 				name, provider, protocol, err)
@@ -339,18 +317,14 @@ func (h *ResourceHandler) GetSchema(c *gin.Context) {
 }
 
 // Helper functions
-
-func isValidProtocol(protocol string) bool {
-	return protocol == "http" || protocol == "tcp" || protocol == "udp"
+var validTypes = map[string][]string{
+	"any":  {"entrypoints"},
+	"http": {"routers", "services", "middlewares", "serversTransports", "tls"},
+	"tcp":  {"routers", "services", "middlewares", "serversTransports", "tls"},
+	"udp":  {"routers", "services", "middlewares"},
 }
 
 func isValidType(protocol, resourceType string) bool {
-	validTypes := map[string][]string{
-		"http": {"routers", "services", "middlewares", "serversTransport", "tls"},
-		"tcp":  {"routers", "services", "middlewares", "serversTransport", "tls"},
-		"udp":  {"routers", "services", "middlewares"},
-	}
-
 	types, ok := validTypes[protocol]
 	if !ok {
 		return false
@@ -373,7 +347,7 @@ func parseNameProvider(nameProvider string) (string, string) {
 }
 
 // normalizeTraefikResource transforms a Traefik API resource to match our database schema
-func normalizeTraefikResource(traefikRes map[string]interface{}) map[string]interface{} {
+func normalizeTraefikResource(protocol, resourceType string, traefikRes map[string]interface{}) map[string]interface{} {
 	// Extract metadata fields
 	name, _ := traefikRes["name"].(string)
 	provider, _ := traefikRes["provider"].(string)
@@ -392,7 +366,9 @@ func normalizeTraefikResource(traefikRes map[string]interface{}) map[string]inte
 	return map[string]interface{}{
 		"name":     name,
 		"provider": provider,
+		"protocol": protocol,
 		"config":   config,
+		"type":     resourceType,
 		"enabled":  status == "enabled",
 		"source":   "traefik",
 	}

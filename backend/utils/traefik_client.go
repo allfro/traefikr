@@ -51,54 +51,16 @@ func (tc *TraefikClient) doRequest(url string) (*http.Response, error) {
 	return tc.client.Do(req)
 }
 
-// GetEntrypoints fetches all entrypoints from Traefik
-func (tc *TraefikClient) GetEntrypoints() ([]interface{}, error) {
-	resp, err := tc.doRequest(fmt.Sprintf("%s/api/entrypoints", tc.baseURL))
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch entrypoints: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, fmt.Errorf("failed to read response body: %w", err)
-	}
-
-	var result []interface{}
-	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
-	}
-
-	return result, nil
-}
-
-// GetEntrypoint fetches a specific entrypoint from Traefik by name
-func (tc *TraefikClient) GetEntrypoint(name string) (map[string]interface{}, error) {
-	// Fetch all entrypoints
-	entrypoints, err := tc.GetEntrypoints()
-	if err != nil {
-		return nil, err
-	}
-
-	// Find the entrypoint with matching name
-	for _, ep := range entrypoints {
-		if epMap, ok := ep.(map[string]interface{}); ok {
-			if epName, exists := epMap["name"]; exists && epName == name {
-				return epMap, nil
-			}
-		}
-	}
-
-	return nil, fmt.Errorf("entrypoint not found: %s", name)
-}
-
 // GetResources fetches resources of a specific type from Traefik
 func (tc *TraefikClient) GetResources(protocol, resourceType string) ([]interface{}, error) {
-	url := fmt.Sprintf("%s/api/%s/%s", tc.baseURL, protocol, resourceType)
+
+	var url string
+
+	if protocol == "any" {
+		url = fmt.Sprintf("%s/api/%s", tc.baseURL, resourceType)
+	} else {
+		url = fmt.Sprintf("%s/api/%s/%s", tc.baseURL, protocol, resourceType)
+	}
 
 	resp, err := tc.doRequest(url)
 	if err != nil {
@@ -129,24 +91,37 @@ func (tc *TraefikClient) GetResources(protocol, resourceType string) ([]interfac
 
 // GetResource fetches a specific resource by name and provider from Traefik
 func (tc *TraefikClient) GetResource(protocol, resourceType, name, provider string) (map[string]interface{}, error) {
-	resources, err := tc.GetResources(protocol, resourceType)
+	var url string
+
+	if protocol == "any" {
+		url = fmt.Sprintf("%s/api/%s/%s@%s", tc.baseURL, resourceType, name, provider)
+	} else {
+		url = fmt.Sprintf("%s/api/%s/%s/%s@%s", tc.baseURL, protocol, resourceType, name, provider)
+	}
+
+	resp, err := tc.doRequest(url)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to fetch resource: %w", err)
 	}
+	defer resp.Body.Close()
 
-	// Find the resource with matching name and provider
-	for _, res := range resources {
-		if resMap, ok := res.(map[string]interface{}); ok {
-			resName, nameExists := resMap["name"].(string)
-			resProvider, providerExists := resMap["provider"].(string)
-
-			if nameExists && providerExists {
-				if resName == name+"@"+provider || (resName == name && resProvider == provider) {
-					return resMap, nil
-				}
-			}
+	if resp.StatusCode != http.StatusOK {
+		// Return an empty map if the endpoint doesn't exist (not an error)
+		if resp.StatusCode == http.StatusNotFound {
+			return make(map[string]interface{}), nil
 		}
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	return nil, fmt.Errorf("resource not found in Traefik")
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(body, &result); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+	}
+
+	return result, nil
 }
