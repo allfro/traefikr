@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"slices"
 	"strings"
 
 	"traefikr/dal"
@@ -116,7 +117,6 @@ func (h *ResourceHandler) GetResource(c *gin.Context) {
 	config, err := h.repo.FindByKey(name, provider, protocol, resourceType)
 
 	if err == nil {
-		// Found in database
 		c.JSON(http.StatusOK, map[string]interface{}{
 			"name":     config.Name,
 			"provider": config.Provider,
@@ -177,6 +177,13 @@ func (h *ResourceHandler) CreateResource(c *gin.Context) {
 	if err := schemas.Validate(protocol, resourceType, req.Config); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "validation failed", "details": err.Error()})
 		return
+	}
+
+	if slices.Contains([]string{"services", "middlewares"}, resourceType) {
+		for k, _ := range req.Config {
+			req.Config["type"] = k
+			break
+		}
 	}
 
 	// Create database entry
