@@ -1,5 +1,5 @@
 import {useQuery} from "@tanstack/react-query";
-import {entrypointsApi, Protocol, resourcesApi, ResourceType} from "@/lib/api.ts";
+import {Protocol, resourcesApi, ResourceType} from "@/lib/api.ts";
 
 
 export function useFetchResourcesQuery(protocol: Protocol, type: ResourceType, includeTraefik = true) {
@@ -12,12 +12,13 @@ export function useFetchResourcesQuery(protocol: Protocol, type: ResourceType, i
     })
 }
 
-export function useFetchEntryPointsQuery() {
+export function useFetchResourceQuery(protocol: Protocol, type: ResourceType, name: string, provider: string, enabled: boolean) {
     return useQuery({
-        queryKey: ["entrypoints"],
+        queryKey: [protocol, type, name, provider],
         queryFn: async () => {
-            const response = await entrypointsApi.list()
+            const response = await resourcesApi.get(protocol, type, name, provider)
             return response.data
-        }
+        },
+        enabled
     })
 }
