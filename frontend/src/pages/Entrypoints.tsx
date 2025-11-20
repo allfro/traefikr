@@ -1,6 +1,5 @@
-import {Container, Title, Table, Badge, Group, Text, Loader, Alert, Card, Stack, TextInput} from '@mantine/core'
-import {IconInfoCircle, IconSearch, IconDoorEnter, IconShield, IconPlugConnected, IconRocket} from '@tabler/icons-react'
-import {useState} from 'react'
+import {Container, Title, Badge, Group, Text, Loader, Alert, Card, Stack} from '@mantine/core'
+import {IconInfoCircle, IconDoorEnter, IconMenu3, IconTransferVertical, IconWorldWww} from '@tabler/icons-react'
 import StatisticsCards from "@/components/StatisticsCards.tsx";
 import {DataTable} from "@/components/DataTable.tsx";
 import {useFetchResourcesQuery} from "@/hooks/useFetchResourcesQuery.tsx";
@@ -54,34 +53,27 @@ export default function Entrypoints() {
                         label: "Total Entrypoints"
                     }, {
                         key: "httpEnabled",
-                        icon: IconRocket,
+                        icon: IconWorldWww,
                         iconColor: "green",
                         predicate: (i) => i.config?.http && true || false,
                         aggregator: undefined,
                         label: "HTTP Enabled"
                     }, {
-                        key: "http2Enabled",
-                        icon: IconRocket,
-                        iconColor: "green",
-                        predicate: (i) => i.config?.http2 && true || false,
-                        aggregator: undefined,
-                        label: "HTTP/2 Enabled"
-                    }, {
-                        key: "http3Enabled",
-                        icon: IconPlugConnected,
+                        key: "tcpEnabled",
+                        icon: IconTransferVertical,
                         iconColor: "violet",
-                        predicate: (i) => i.config?.http3 && true || false,
+                        predicate: (i) => !i.config?.address?.toLowerCase().endsWith('/udp') && true || false,
                         aggregator: undefined,
-                        label: "HTTP/3 Enabled"
+                        label: "TCP Enabled"
                     }, {
                         key: "udpEnabled",
-                        icon: IconShield,
-                        iconColor: "orange",
-                        predicate: (i) => i.config?.udp && true || false,
+                        icon: IconMenu3,
+                        iconColor: "brown",
+                        predicate: (i) => i.config?.address?.toLowerCase().endsWith('/udp') || false,
                         aggregator: undefined,
                         label: "UDP Enabled"
                     }
-                ]} items={entrypoints || []} cols={{base: 1, sm: 2, lg: 5}} spacing="lg"/>
+                ]} items={entrypoints || []} cols={{base: 1, sm: 2, lg: 4}} spacing="lg"/>
 
                 <Card shadow="sm" radius="md" withBorder>
                     <Stack>
@@ -102,13 +94,19 @@ export default function Entrypoints() {
                                 {
                                     key: "config.protocol",
                                     sortable: true,
+                                    label: "Protocol",
+                                    render: (_, row) => (<Badge variant="light">{ row?.config?.address?.endsWith('/udp') && 'UDP' || 'TCP'}</Badge>)
+                                },
+                                {
+                                    key: "config.protocols",
+                                    sortable: true,
                                     label: "Protocols",
                                     render: (_, row) => (
                                         <>
                                             {row.config?.http && <Badge variant="dot" color={"green"}>HTTP/1.1</Badge>}
                                             {row.config?.http2 && <Badge variant="dot" color={"green"}>HTTP/2</Badge>}
                                             {row.config?.http3 && <Badge variant="dot" color={"green"}>HTTP/3</Badge>}
-                                            {row.config?.udp && <Badge variant="dot" color={"green"}>UDP</Badge>}
+                                            {row.config?.address?.endsWith('/udp') && <Text>'-'</Text>}
                                         </>
                                     )
                                 },
@@ -116,30 +114,29 @@ export default function Entrypoints() {
                                     key: "config.transport.respondingTimeouts.readTimeout",
                                     sortable: true,
                                     label: "Read Timeout",
-                                    render: (value) => (<Text size="sm">{value || '-'}</Text>),
+                                    render: (value, row) => (<Text size="sm">{(!row.config?.address?.endsWith('/udp') && value) && value || '-'}</Text>),
                                 },
                                 {
                                     key: "config.transport.respondingTimeouts.idleTimeout",
                                     sortable: true,
                                     label: "Idle Timeout",
-                                    render: (value) => (<Text size="sm">{value || '-'}</Text>),
+                                    render: (value, row) => (<Text size="sm">{(!row.config?.address?.endsWith('/udp') && value) && value || '-'}</Text>),
                                 },
                                 {
                                     key: "config.udp.timeout",
                                     sortable: true,
                                     label: "UDP Timeout",
-                                    render: (value) => (<Text size="sm">{value || '-'}</Text>),
+                                    render: (value, row) => (<Text size="sm">{(row.config?.address?.endsWith('/udp') && value) && value || '-'}</Text>),
                                 },
                                 {
-                                    key: "config.udp.timeout",
-                                    sortable: true,
+                                    key: "actions",
+                                    sortable: false,
                                     label: "Actions",
                                     render: (_, row) => (<ResourceActionIconGroup resource={row}/>),
                                 }
                             ]}
                             data={entrypoints || []}
                             isLoading={isLoading}
-                            getRowKey={(row) => `${row.protocol}.${row.name}@${row.provider}`}
                             searchPlaceholder="Search HTTP routers..."
                             emptyMessage="No entrypoints found"
                             defaultSort={{key: 'name', direction: 'asc'}}
