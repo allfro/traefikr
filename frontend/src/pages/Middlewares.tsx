@@ -1,43 +1,29 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
+import {useState} from 'react'
 import {
-  Card,
-  Title,
-  Text,
   Badge,
-  SimpleGrid,
-  Stack,
-  Group,
-  Loader,
   Button,
-  ActionIcon,
+  Card,
   Code,
   Container,
-  ThemeIcon,
+  Group,
+  Loader,
   Paper,
+  SimpleGrid,
+  Stack,
   Tabs,
+  Text,
   TextInput,
+  ThemeIcon,
+  Title,
   Tooltip,
 } from '@mantine/core'
-import {
-  IconShield,
-  IconTrash,
-  IconEdit,
-  IconPlus,
-  IconSearch,
-  IconRouter,
-  IconNetwork,
-  IconLock,
-  IconCloud,
-  IconEye,
-} from '@tabler/icons-react'
-import { resourcesApi, Resource } from '@/lib/api'
-import { notifications } from '@mantine/notifications'
-import { modals } from '@mantine/modals'
-import { ProviderIcon } from '@/components/ProviderIcon'
-import { StatusIcon } from '@/components/StatusIcon'
-import { ResourceViewModal } from '@/components/ResourceViewModal'
+import {IconCloud, IconLock, IconNetwork, IconPlus, IconRouter, IconSearch, IconShield,} from '@tabler/icons-react'
+import {Resource} from '@/lib/api'
+import {ProviderIcon} from '@/components/ProviderIcon'
+import {StatusIcon} from '@/components/StatusIcon'
+import ResourceActionIconGroup from "@/components/ResourceActionIconGroup.tsx";
+import {useFetchResourcesQuery} from "@/hooks/useFetchResourcesQuery.tsx";
+import {useNavigate} from "react-router-dom";
 
 // Get middleware type - either from 'type' field (Traefik) or detect from config keys (database)
 function getMiddlewareType(middleware: Resource): string {
@@ -78,81 +64,15 @@ function getMiddlewareConfig(middleware: Resource): Record<string, any> {
 }
 
 export default function Middlewares() {
-  const queryClient = useQueryClient()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<string>('http')
   const [searchQuery, setSearchQuery] = useState('')
-  const [viewModalOpened, setViewModalOpened] = useState(false)
-  const [viewResource, setViewResource] = useState<{ protocol: string; resource: Resource } | null>(null)
 
   // Fetch HTTP middlewares
-  const { data: httpMiddlewares = [], isLoading: httpLoading } = useQuery({
-    queryKey: ['resources', 'http', 'middlewares', true],
-    queryFn: async () => {
-      const response = await resourcesApi.list('http', 'middlewares', true)
-      return response.data
-    },
-  })
+  const { data: httpMiddlewares = [], isLoading: httpLoading } = useFetchResourcesQuery('http', 'middlewares', true);
 
   // Fetch TCP middlewares
-  const { data: tcpMiddlewares = [], isLoading: tcpLoading } = useQuery({
-    queryKey: ['resources', 'tcp', 'middlewares', true],
-    queryFn: async () => {
-      const response = await resourcesApi.list('tcp', 'middlewares', true)
-      return response.data
-    },
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: async ({ protocol, name }: { protocol: string; name: string }) => {
-      await resourcesApi.delete(protocol as any, 'middlewares', name)
-    },
-    onSuccess: (_, variables) => {
-      notifications.show({
-        title: 'Success',
-        message: 'Middleware deleted successfully',
-        color: 'green',
-      })
-      queryClient.invalidateQueries({ queryKey: ['resources', variables.protocol, 'middlewares'] })
-    },
-    onError: (error: any) => {
-      notifications.show({
-        title: 'Error',
-        message: error.response?.data?.error || 'Failed to delete middleware',
-        color: 'red',
-      })
-    },
-  })
-
-  const handleEdit = (protocol: string, middleware: Resource) => {
-    if (middleware.source === 'database') {
-      navigate(`/middlewares/${protocol}/${encodeURIComponent(middleware.name)}/edit`)
-    }
-  }
-
-  const handleCreate = () => {
-    navigate('/middlewares/new')
-  }
-
-  const handleDelete = (protocol: string, middleware: Resource) => {
-    modals.openConfirmModal({
-      title: 'Delete Middleware',
-      children: (
-        <Text size="sm">
-          Are you sure you want to delete middleware <strong>{middleware.name}</strong>? This action cannot be
-          undone.
-        </Text>
-      ),
-      labels: { confirm: 'Delete', cancel: 'Cancel' },
-      confirmProps: { color: 'red' },
-      onConfirm: () => deleteMutation.mutate({ protocol, name: `${middleware.name}@${middleware.provider}` }),
-    })
-  }
-
-  const handleView = (protocol: string, middleware: Resource) => {
-    setViewResource({ protocol, resource: middleware })
-    setViewModalOpened(true)
-  }
+  const { data: tcpMiddlewares = [], isLoading: tcpLoading } = useFetchResourcesQuery('tcp', 'middlewares', true);
 
   const filterMiddlewares = (middlewares: Resource[]) => {
     let filtered = middlewares
@@ -165,8 +85,11 @@ export default function Middlewares() {
     return [...filtered].sort((a, b) => a.name.localeCompare(b.name))
   }
 
-  const renderMiddlewareCard = (protocol: string, middleware: Resource) => {
-    const canEdit = middleware.source === 'database'
+  const handleCreate = () => {
+    navigate('/middlewares/new')
+  }
+
+  const renderMiddlewareCard = (middleware: Resource) => {
     const isInternal = middleware.provider === 'internal'
     const isExternal = middleware.source !== 'database' && !isInternal
     const middlewareType = getMiddlewareType(middleware)
@@ -231,34 +154,7 @@ export default function Middlewares() {
               enabledLabel="Enabled"
               disabledLabel="Disabled"
             />
-            <Group gap="xs">
-              <ActionIcon
-                variant="subtle"
-                color="blue"
-                onClick={() => handleView(protocol, middleware)}
-                title="View middleware"
-              >
-                <IconEye size={16} />
-              </ActionIcon>
-              <ActionIcon
-                variant="subtle"
-                color={canEdit ? 'blue' : 'gray'}
-                onClick={() => canEdit && handleEdit(protocol, middleware)}
-                disabled={!canEdit}
-                title={canEdit ? 'Edit middleware' : 'Only database middlewares can be edited'}
-              >
-                <IconEdit size={16} />
-              </ActionIcon>
-              <ActionIcon
-                variant="subtle"
-                color={canEdit ? 'red' : 'gray'}
-                onClick={() => canEdit && handleDelete(protocol, middleware)}
-                disabled={!canEdit}
-                title={canEdit ? 'Delete middleware' : 'Only database middlewares can be deleted'}
-              >
-                <IconTrash size={16} />
-              </ActionIcon>
-            </Group>
+            <ResourceActionIconGroup resource={middleware}/>
           </Group>
         </Card.Section>
       </Card>
@@ -310,7 +206,7 @@ export default function Middlewares() {
                 ) : filterMiddlewares(httpMiddlewares).length > 0 ? (
                   <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
                     {filterMiddlewares(httpMiddlewares).map((middleware) =>
-                      renderMiddlewareCard('http', middleware)
+                      renderMiddlewareCard(middleware)
                     )}
                   </SimpleGrid>
                 ) : (
@@ -334,7 +230,7 @@ export default function Middlewares() {
                 ) : filterMiddlewares(tcpMiddlewares).length > 0 ? (
                   <SimpleGrid cols={{ base: 1, md: 2, lg: 3 }} spacing="lg">
                     {filterMiddlewares(tcpMiddlewares).map((middleware) =>
-                      renderMiddlewareCard('tcp', middleware)
+                      renderMiddlewareCard(middleware)
                     )}
                   </SimpleGrid>
                 ) : (
@@ -352,17 +248,6 @@ export default function Middlewares() {
           </Stack>
         </Card>
       </Stack>
-
-      {viewResource && (
-        <ResourceViewModal
-          opened={viewModalOpened}
-          onClose={() => setViewModalOpened(false)}
-          protocol={viewResource.protocol as any}
-          type="middlewares"
-          resourceName={viewResource.resource.name}
-          config={viewResource.resource.config}
-        />
-      )}
     </Container>
   )
 }
