@@ -50,36 +50,36 @@ function App() {
           <Route path="routers/new/http" element={<HTTPRouterForm />} />
           <Route path="routers/new/tcp" element={<TCPRouterForm />} />
           <Route path="routers/new/udp" element={<UDPRouterForm />} />
-          <Route path="routers/http/:name/edit" element={<HTTPRouterForm />} />
-          <Route path="routers/tcp/:name/edit" element={<TCPRouterForm />} />
-          <Route path="routers/udp/:name/edit" element={<UDPRouterForm />} />
+          <Route path="routers/http/:name@:provider/edit" element={<HTTPRouterForm />} />
+          <Route path="routers/tcp/:name@:provider/edit" element={<TCPRouterForm />} />
+          <Route path="routers/udp/:name@:provider/edit" element={<UDPRouterForm />} />
           <Route path="services" element={<Services />} />
           <Route path="services/new" element={<ServiceTypeSelector />} />
           <Route path="services/new/:protocol/select-type" element={<ServiceSubtypeSelector />} />
           <Route path="services/new/http/:subtype" element={<HTTPServiceForm />} />
           <Route path="services/new/tcp/:subtype" element={<TCPServiceForm />} />
           <Route path="services/new/udp/:subtype" element={<UDPServiceForm />} />
-          <Route path="services/http/:name/edit" element={<HTTPServiceForm />} />
-          <Route path="services/tcp/:name/edit" element={<TCPServiceForm />} />
-          <Route path="services/udp/:name/edit" element={<UDPServiceForm />} />
+          <Route path="services/http/:name@:provider/edit" element={<HTTPServiceForm />} />
+          <Route path="services/tcp/:name@:provider/edit" element={<TCPServiceForm />} />
+          <Route path="services/udp/:name@:provider/edit" element={<UDPServiceForm />} />
           <Route path="middlewares" element={<Middlewares />} />
           <Route path="middlewares/new" element={<MiddlewareProtocolSelector />} />
           <Route path="middlewares/new/:protocol" element={<MiddlewareTypeSelector />} />
-          <Route path="middlewares/new/:protocol/:middlewareType" element={<HTTPMiddlewareForm />} />
+          <Route path="middlewares/new/:protocol/:subType" element={<HTTPMiddlewareForm />} />
           <Route path="middlewares/:protocol/:name/edit" element={<HTTPMiddlewareForm />} />
           <Route path="settings" element={<Settings />} />
           <Route path="entrypoints" element={<Entrypoints />} />
           <Route path="tls" element={<TLS />} />
           <Route path="tls/certificates/new" element={<TLSCertificateForm />} />
-          <Route path="tls/certificates/:name/edit" element={<TLSCertificateForm />} />
+          <Route path="tls/certificates/:name@:provider/edit" element={<TLSCertificateForm />} />
           <Route path="tls/options/new" element={<TLSOptionForm />} />
-          <Route path="tls/options/:name/edit" element={<TLSOptionForm />} />
+          <Route path="tls/options/:name@:provider/edit" element={<TLSOptionForm />} />
           <Route path="serversTransports" element={<ServersTransports />} />
           <Route path="serversTransports/new" element={<ServersTransportTypeSelector />} />
           <Route path="serversTransports/new/http" element={<HTTPServerTransportForm />} />
           <Route path="serversTransports/new/tcp" element={<TCPServerTransportForm />} />
-          <Route path="serversTransports/http/:name/edit" element={<HTTPServerTransportForm />} />
-          <Route path="serversTransports/tcp/:name/edit" element={<TCPServerTransportForm />} />
+          <Route path="serversTransports/http/:name@:provider/edit" element={<HTTPServerTransportForm />} />
+          <Route path="serversTransports/tcp/:name@:provider/edit" element={<TCPServerTransportForm />} />
         </Route>
       </Routes>
     </AuthProvider>
