@@ -120,8 +120,8 @@ export const resourcesApi = {
     }),
 
   // Get single resource
-  get: (protocol: Protocol, type: ResourceType, nameProvider: string) =>
-    api.get<Resource>(`/api/${protocol}/${type}/${nameProvider}`),
+  get: (protocol: Protocol, type: ResourceType, name: string, provider: string) =>
+    api.get<Resource>(`/api/${protocol}/${type}/${name}@${provider}`),
 
   // Create resource
   create: (protocol: Protocol, type: ResourceType, resource: CreateResourceRequest) =>
