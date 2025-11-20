@@ -13,54 +13,38 @@ import {
   Badge,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { IconGitBranch, IconDeviceFloppy, IconArrowLeft } from '@tabler/icons-react'
-import { resourcesApi } from '@/lib/api'
+import {resourcesApi} from '@/lib/api'
 import { MiddlewareSchemaForm } from '@/components/MiddlewareSchemaForm'
+import {useFetchResourceQuery} from "@/hooks/useFetchResourcesQuery.tsx";
+import useResourceParams from "@/hooks/useResourceParams.tsx";
+import _ from "lodash";
 
 export default function HTTPMiddlewareForm() {
   const navigate = useNavigate()
-  const { name, middlewareType, protocol = 'http' } = useParams<{ name: string; middlewareType?: string; protocol?: string }>()
-  const queryClient = useQueryClient()
-  const isEditMode = !!name
+  const { name, subType: type = 'addPrefix', protocol, provider } = useResourceParams();
+  const { data: existingMiddleware, isLoading: isLoadingMiddleware } = useFetchResourceQuery(protocol, 'middlewares', name, provider??'http', !!name);
 
-  // Middleware type (e.g., basicAuth, rateLimit, etc.)
-  const type = middlewareType || 'addPrefix'
+  const isEditMode = !!name
+  console.log(name, protocol, provider, existingMiddleware, isLoadingMiddleware, isEditMode)
 
   const [formData, setFormData] = useState({
-    name: '',
-    provider: 'http',
-    type: type,
+    name,
+    provider,
+    type,
     config: {},
-  })
-
-  // Fetch existing middleware in edit mode
-  const { data: existingMiddleware, isLoading: isLoadingMiddleware } = useQuery({
-    queryKey: ['resources', protocol, 'middlewares', name],
-    queryFn: async () => {
-      if (!name) return null
-      const response = await resourcesApi.get(protocol as any, 'middlewares', name)
-      return response.data
-    },
-    enabled: isEditMode,
-  })
+  });
 
   // Populate form when editing
   useEffect(() => {
     if (existingMiddleware) {
-      // Detect middleware type from config and unwrap
-      let detectedType = type
-      let unwrappedConfig = {}
-
-      // Find which middleware type is present
-      for (const key of Object.keys(existingMiddleware.config || {})) {
-        detectedType = key
-        unwrappedConfig = existingMiddleware.config[key]
-        break
-      }
+      // The middleware type is the first key in the config object
+      const detectedType = _.first(_.keys(existingMiddleware.config))??type
+      const unwrappedConfig = _.get(existingMiddleware.config, detectedType)
 
       setFormData({
-        name: existingMiddleware.name.split('@')[0], // Remove @provider suffix
+        name: existingMiddleware.name, // Remove @provider suffix
         provider: existingMiddleware.provider,
         type: detectedType,
         config: unwrappedConfig,
