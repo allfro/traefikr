@@ -3,14 +3,10 @@ import {
     Table,
     TextInput,
     Group,
-    // Checkbox,
-    // Menu,
-    // Button,
     ScrollArea,
 } from '@mantine/core'
 import {
     IconSearch,
-    // IconFilter,
     IconSortAscending,
     IconSortDescending
 } from '@tabler/icons-react'
@@ -37,12 +33,6 @@ export interface DataTableProps<T = any> {
     // filters?: Filter<T>[]
     isLoading?: boolean
     onRowClick?: (row: T) => void
-    onEdit?: (row: T) => void
-    onDelete?: (row: T) => void
-    onView?: (row: T) => void
-    getRowKey: (row: T) => string
-    canEdit?: (row: T) => boolean
-    canDelete?: (row: T) => boolean
     searchPlaceholder?: string
     emptyMessage?: string
     defaultSort?: {
@@ -51,17 +41,18 @@ export interface DataTableProps<T = any> {
     }
 }
 
-export function DataTable<T extends Record<string, any>>({
-                                                             columns,
-                                                             data = [],
-                                                             // filters = [],
-                                                             isLoading = false,
-                                                             onRowClick,
-                                                             getRowKey,
-                                                             searchPlaceholder = 'Search...',
-                                                             emptyMessage = 'No data found',
-                                                             defaultSort,
-                                                         }: DataTableProps<T>) {
+export function DataTable<T extends Record<string, any>>(
+    {
+        columns,
+        data = [],
+        // filters = [],
+        isLoading = false,
+        onRowClick,
+        searchPlaceholder = 'Search...',
+        emptyMessage = 'No data found',
+        defaultSort,
+    }: DataTableProps<T>
+) {
     const [search, setSearch] = useState('')
     const [sortConfig, setSortConfig] = useState<{
         key: string
@@ -216,17 +207,16 @@ export function DataTable<T extends Record<string, any>>({
                                 </Table.Td>
                             </Table.Tr>
                         ) : (
-                            sortedData.map((row) => {
-                                const rowKey = getRowKey(row)
+                            sortedData.map((item, i) => {
                                 return (
                                     <Table.Tr
-                                        key={rowKey}
+                                        key={i}
                                         style={{cursor: onRowClick ? 'pointer' : 'default'}}
-                                        onClick={() => onRowClick?.(row)}
+                                        onClick={() => onRowClick?.(item)}
                                     >
-                                        {columns.map((col) => (
-                                            <Table.Td key={`${rowKey}-${col.key}`}>
-                                                {col.render ? col.render(_.get(row, col.key), row) : _.get(row, col.key)}
+                                        {columns.map((col, j) => (
+                                            <Table.Td key={j}>
+                                                {col.render ? col.render(_.get(item, col.key), item) : _.get(item, col.key)}
                                             </Table.Td>
                                         ))}
                                     </Table.Tr>
