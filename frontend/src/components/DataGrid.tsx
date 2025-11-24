@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react'
+import {ReactElement, useMemo, useState} from 'react'
 import {
     Group,
     Loader,
@@ -11,12 +11,12 @@ import {
     TextInput,
     ThemeIcon,
 } from '@mantine/core'
-import {IconSearch, IconShield} from '@tabler/icons-react'
+import {IconSearch} from '@tabler/icons-react'
 import _ from "lodash";
 
 export interface Card<T = any> {
     key: string
-    render: (item: T) => React.ReactNode
+    render: React.FC<{resource: T}>
 }
 
 export interface Filter<T = any> {
@@ -41,9 +41,10 @@ export interface DataGridProps<T = any> {
     onCardClick?: (row: T) => void
     searchPlaceholder?: string
     emptyMessage?: string
-    defaultSort?: {
-        key: string
-        direction: 'asc' | 'desc'
+    placeholderIcon?: () => ReactElement
+    defaultSort: {
+        key: string | null
+        direction: 'asc' | 'desc' | null
     }
 }
 
@@ -55,6 +56,7 @@ export function DataGrid<T extends Record<string, any>>(
         // filters = [],
         isLoading = false,
         onCardClick,
+        placeholderIcon = () => (<IconSearch size={24}/>),
         searchPlaceholder = 'Search...',
         emptyMessage = 'No data found',
         sortKeys = [],
@@ -62,11 +64,12 @@ export function DataGrid<T extends Record<string, any>>(
         ...props
     }: DataGridProps<T> & SimpleGridProps
 ) {
+
     const [search, setSearch] = useState('')
     const [sortConfig, setSortConfig] = useState<{
-        key?: string
-        direction: 'asc' | 'desc'
-    } | null>(defaultSort || null)
+        key: string | null
+        direction: 'asc' | 'desc' | null
+    }>(defaultSort)
 
     const cardMap = useMemo(() => {
         return _.keyBy(cards, 'key')
@@ -93,98 +96,42 @@ export function DataGrid<T extends Record<string, any>>(
         }
 
         // TODO: incorporate filters
-
         return filtered
     }, [data, search, cards])
 
     // Sort data
     const sortedData = useMemo(() => {
-        return (!sortConfig) ? filteredData : _.orderBy(filteredData, [sortConfig.key], [sortConfig.direction])
-    }, [filteredData, sortConfig])
-
-    const handleSort = (key: string) => {
-        setSortConfig((current) => {
-            if (current?.key === key) {
-                return current.direction === 'asc'
-                    ? {key, direction: 'desc'}
-                    : null
-            }
-            return {key, direction: 'asc'}
-        })
-    }
-
+        return _.orderBy(filteredData, [sortConfig.key], [sortConfig.direction ?? 'asc'])
+    }, [filteredData, sortConfig]) as T[]
 
     return (
-        <div>
-            <Group mb="md" justify="space-between">
-                <TextInput
-                    placeholder={searchPlaceholder}
-                    leftSection={<IconSearch size={16}/>}
-                    value={search}
-                    onChange={(e) => setSearch(e.currentTarget.value)}
-                    style={{flex: 1, maxWidth: 400}}
-                />
-                <Select
-                    data={sortKeys}
-                    value={sortConfig ? sortConfig.key : ''}
-                    onChange={(value) => setSortConfig({key: value, ...sortConfig})}
-                />
-                <Select
-                    data={[{value: 'asc', label: 'Ascending'}, {value: 'desc', label: 'Descending'}]}
-                    value={value ? value.value : ''}
-                    onChange={() => setSortConfig(null)}
-                />
-
-
-                {/*<Group gap="xs">*/}
-                {/*    {(false) && (*/}
-                {/*        <Menu position="bottom-end" shadow="md">*/}
-                {/*            <Menu.Target>*/}
-                {/*                <Button*/}
-                {/*                    variant={hasActiveFilters ? 'filled' : 'light'}*/}
-                {/*                    leftSection={<IconFilter size={16}/>}*/}
-                {/*                    size="sm"*/}
-                {/*                >*/}
-                {/*                    Filters {hasActiveFilters && `(${[showDatabaseOnly, showEnabledOnly].filter(Boolean).length})`}*/}
-                {/*                </Button>*/}
-                {/*            </Menu.Target>*/}
-                {/*            <Menu.Dropdown>*/}
-                {/*                {enableSourceFilter && (*/}
-                {/*                    <Menu.Item closeMenuOnClick={false}>*/}
-                {/*                        <Checkbox*/}
-                {/*                            label="Database resources only"*/}
-                {/*                            checked={showDatabaseOnly}*/}
-                {/*                            onChange={(e) => setShowDatabaseOnly(e.currentTarget.checked)}*/}
-                {/*                        />*/}
-                {/*                    </Menu.Item>*/}
-                {/*                )}*/}
-                {/*                {enableStatusFilter && (*/}
-                {/*                    <Menu.Item closeMenuOnClick={false}>*/}
-                {/*                        <Checkbox*/}
-                {/*                            label="Enabled resources only"*/}
-                {/*                            checked={showEnabledOnly}*/}
-                {/*                            onChange={(e) => setShowEnabledOnly(e.currentTarget.checked)}*/}
-                {/*                        />*/}
-                {/*                    </Menu.Item>*/}
-                {/*                )}*/}
-                {/*                {hasActiveFilters && (*/}
-                {/*                    <>*/}
-                {/*                        <Menu.Divider/>*/}
-                {/*                        <Menu.Item*/}
-                {/*                            onClick={() => {*/}
-                {/*                                setShowDatabaseOnly(false)*/}
-                {/*                                setShowEnabledOnly(false)*/}
-                {/*                            }}*/}
-                {/*                        >*/}
-                {/*                            Clear filters*/}
-                {/*                        </Menu.Item>*/}
-                {/*                    </>*/}
-                {/*                )}*/}
-                {/*            </Menu.Dropdown>*/}
-                {/*        </Menu>*/}
-                {/*    )}*/}
-                {/*</Group>*/}
-            </Group>
+        <Stack>
+            {data.length > 0 &&
+                <Group gap={'xs'}>
+                    <TextInput
+                        placeholder={searchPlaceholder}
+                        leftSection={<IconSearch size={16}/>}
+                        value={search}
+                        onChange={(e) => setSearch(e.currentTarget.value)}
+                        style={{flex: 1}}
+                        label={"Filter"}
+                    />
+                    <Select
+                        data={sortKeys}
+                        value={sortConfig.key}
+                        onChange={(key) => setSortConfig({...sortConfig, key})}
+                        placeholder="Sort by"
+                        label="Sort by"
+                    />
+                    <Select
+                        data={[{value: 'asc', label: 'Ascending'}, {value: 'desc', label: 'Descending'}]}
+                        value={sortConfig.direction}
+                        onChange={(direction) => setSortConfig({...sortConfig, direction: direction as any})}
+                        placeholder="Sort direction"
+                        label={"Sort direction"}
+                    />
+                </Group>
+            }
 
             <ScrollArea>
 
@@ -196,7 +143,7 @@ export function DataGrid<T extends Record<string, any>>(
                 ) : sortedData.length === 0 ? (
                     <Stack align="center" py="xl">
                         <ThemeIcon size="xl" radius="xl" color="gray" variant="light">
-                            <IconShield size={28}/>
+                            {placeholderIcon()}
                         </ThemeIcon>
                         <Text c="dimmed" fw={500}>
                             {emptyMessage}
@@ -204,9 +151,9 @@ export function DataGrid<T extends Record<string, any>>(
                     </Stack>
                 ) : (
                     <SimpleGrid {...props}>
-                        {sortedData.map((item) => {
+                        {sortedData.map((item, i) => {
                             const card = _.get(cardMap, item[cardKey], cards[0])
-                            return card.render(item);
+                            return <card.render key={i} resource={item}/>;
                         })}
                     </SimpleGrid>
                 )}
@@ -220,6 +167,6 @@ export function DataGrid<T extends Record<string, any>>(
                     </div>
                 </Group>
             )}
-        </div>
+        </Stack>
     )
 }

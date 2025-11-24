@@ -1,13 +1,14 @@
-import { useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Alert, Loader, Stack, Text } from '@mantine/core'
-import { IconAlertCircle } from '@tabler/icons-react'
-import { resourcesApi } from '@/lib/api'
-import { resolveSchema } from '@/lib/schemaResolver'
-import { SchemaForm } from './SchemaForm'
+import {useMemo} from 'react'
+import {Alert, Loader, Stack, Text} from '@mantine/core'
+import {IconAlertCircle} from '@tabler/icons-react'
+import {resolveSchema} from '@/lib/schemaResolver'
+import {SchemaForm} from './SchemaForm'
+import _ from "lodash";
+import useSchemaQuery from "@/hooks/useSchemaQuery.tsx";
+import {Protocol} from "@/lib/api.ts";
 
 interface MiddlewareSchemaFormProps {
-  protocol: string
+  protocol: Protocol
   middlewareType: string
   value: Record<string, any>
   onChange: (value: Record<string, any>) => void
@@ -27,13 +28,7 @@ export function MiddlewareSchemaForm({
   disabled = false,
   readonly = false,
 }: MiddlewareSchemaFormProps) {
-  const { data: fullSchema, isLoading, error } = useQuery({
-    queryKey: ['schema', protocol, 'middlewares'],
-    queryFn: async () => {
-      const response = await resourcesApi.getSchema(protocol as any, 'middlewares')
-      return response.data
-    },
-  })
+  const { data: fullSchema, isLoading, error } = useSchemaQuery(protocol, 'middlewares');
 
   // Extract and resolve the specific middleware type schema
   const middlewareSchema = useMemo(() => {
@@ -87,7 +82,7 @@ export function MiddlewareSchemaForm({
     <SchemaForm
       protocol={protocol as any}
       type="middlewares"
-      value={value}
+      value={_.get(value, middlewareType, {})}
       onChange={onChange}
       disabled={disabled}
       readonly={readonly}

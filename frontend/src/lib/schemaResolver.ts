@@ -8,14 +8,6 @@ interface JsonSchema {
   $defs?: Record<string, any>
   definitions?: Record<string, any>
 }
-
-/**
- * Deeply clone an object
- */
-function deepClone<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj))
-}
-
 /**
  * Resolve a single $ref pointer
  */

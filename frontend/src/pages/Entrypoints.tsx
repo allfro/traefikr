@@ -1,9 +1,10 @@
-import {Container, Title, Badge, Group, Text, Loader, Alert, Card, Stack} from '@mantine/core'
-import {IconInfoCircle, IconDoorEnter, IconMenu3, IconTransferVertical, IconWorldWww} from '@tabler/icons-react'
+import {Alert, Badge, Card, Container, Group, Loader, Stack, Text} from '@mantine/core'
+import {IconDoorEnter, IconInfoCircle, IconMenu3, IconTransferVertical, IconWorldWww} from '@tabler/icons-react'
 import StatisticsCards from "@/components/StatisticsCards.tsx";
 import {DataTable} from "@/components/DataTable.tsx";
 import {useFetchResourcesQuery} from "@/hooks/useFetchResourcesQuery.tsx";
 import ResourceActionIconGroup from "@/components/ResourceActionIconGroup.tsx";
+import PageHeader from "@/components/PageHeader.tsx";
 
 export default function Entrypoints() {
 
@@ -33,17 +34,14 @@ export default function Entrypoints() {
     return (
         <Container size="xl">
             <Stack gap="lg">
-                <Group justify="space-between" align="center">
-                    <Group>
-                        <IconDoorEnter size={32} stroke={1.5} color="#00aec1"/>
-                        <div>
-                            <Title order={2}>Entrypoints</Title>
-                            <Text size="sm" c="dimmed">
-                                Entrypoints are configured in Traefik's static configuration
-                            </Text>
-                        </div>
-                    </Group>
-                </Group>
+                <PageHeader
+                    title={'Entrypoints'}
+                    subTitle={
+                        'Define the network addresses and protocols that Traefik will listen on.'
+                    }
+                    icon={IconDoorEnter}
+                    iconColor={"#00aec1"}
+                />
 
                 <StatisticsCards statistics={[
                     {

@@ -270,7 +270,6 @@ export default function Routers() {
                 columns={httpColumns}
                 data={httpRouters}
                 isLoading={httpLoading}
-                getRowKey={(router) => `${router.protocol}.${router.name}@${router.provider}`}
                 searchPlaceholder="Search HTTP routers..."
                 emptyMessage="No HTTP routers found"
                 defaultSort={{ key: 'name', direction: 'asc' }}

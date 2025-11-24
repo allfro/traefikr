@@ -28,6 +28,7 @@ import TCPServerTransportForm from '@/pages/TCPServerTransportForm'
 import Login from '@/pages/Login'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
+import {NewMiddlewareForm} from "@/pages/NewMiddlewareForm.tsx";
 
 function App() {
   console.log('[APP] Render')
@@ -47,6 +48,7 @@ function App() {
           <Route index element={<Dashboard />} />
           <Route path="routers" element={<Routers />} />
           <Route path="routers/new" element={<RouterTypeSelector />} />
+          <Route path="middlewarenew/new" element={<NewMiddlewareForm />} />
           <Route path="routers/new/http" element={<HTTPRouterForm />} />
           <Route path="routers/new/tcp" element={<TCPRouterForm />} />
           <Route path="routers/new/udp" element={<UDPRouterForm />} />

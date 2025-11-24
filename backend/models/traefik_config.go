@@ -36,7 +36,7 @@ func (j *JSON) Scan(value interface{}) error {
 	return err
 }
 
-// Value implements the driver.Valuer interface
+// Value implements the driver.Value interface
 func (j JSON) Value() (driver.Value, error) {
 	if j == nil {
 		return nil, nil

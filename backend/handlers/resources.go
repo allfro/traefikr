@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"net/http"
-	"slices"
 	"strings"
 
 	"traefikr/dal"
@@ -179,12 +178,12 @@ func (h *ResourceHandler) CreateResource(c *gin.Context) {
 		return
 	}
 
-	if slices.Contains([]string{"services", "middlewares"}, resourceType) {
-		for k, _ := range req.Config {
-			req.Config["type"] = k
-			break
-		}
-	}
+	//if slices.Contains([]string{"services", "middlewares"}, resourceType) {
+	//	for k, _ := range req.Config {
+	//		req.Config["type"] = strings.ToLower(k)
+	//		break
+	//	}
+	//}
 
 	// Create database entry
 	config := &models.TraefikConfig{
@@ -257,6 +256,14 @@ func (h *ResourceHandler) UpdateResource(c *gin.Context) {
 
 	// Update config and save
 	config.Config = req.Config
+
+	//if slices.Contains([]string{"services", "middlewares"}, resourceType) {
+	//	for k, _ := range req.Config {
+	//		req.Config["type"] = strings.ToLower(k)
+	//		break
+	//	}
+	//}
+
 	if err := h.repo.Update(config); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update resource"})
 		return
@@ -368,6 +375,9 @@ func normalizeTraefikResource(protocol, resourceType string, traefikRes map[stri
 			config[key] = value
 		}
 	}
+
+	delete(config, "usedBy")
+	delete(config, "type")
 
 	// Return normalized structure
 	return map[string]interface{}{

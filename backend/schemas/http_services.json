@@ -1,6 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$defs": {
+    "service": {
+      "title": "Service",
+      "type": "string",
+      "$comment": "type=service",
+      "description": "The service identifier"
+    },
     "stickyConfig": {
       "title": "Sticky Sessions",
       "type": "object",
@@ -127,6 +133,7 @@
     "weightedHealthCheck": {
       "title": "Health Check",
       "type": "object",
+      "$id": "/services/parentHealthCheck",
       "description": "Activates health monitoring for child services"
     },
     "passiveHealthCheck": {
@@ -152,6 +159,7 @@
   "oneOf": [
     {
       "type": "object",
+      "title": "Load Balancer",
       "properties": {
         "loadBalancer": {
           "title": "Load Balancer",
@@ -165,9 +173,11 @@
             },
             "servers": {
               "title": "Servers",
+              "minItems": 1,
               "type": "array",
               "items": {
                 "type": "object",
+                "title": "Server",
                 "properties": {
                   "url": {
                     "title": "URL",
@@ -217,7 +227,8 @@
                 "flushInterval": {
                   "title": "Flush Interval",
                   "type": "string",
-                  "description": "Specifies the interval in between flushes to the client while copying the response body (in milliseconds, default: 100ms)"
+                  "description": "Specifies the interval in between flushes to the client while copying the response body (in milliseconds, default: 100ms)",
+                  "default": "100ms"
                 }
               },
               "description": "Configures how Traefik forwards the response from the backend server to the client"
@@ -232,6 +243,7 @@
     },
     {
       "type": "object",
+      "title": "Weighted Round Robin",
       "properties": {
         "weighted": {
           "title": "Weighted Round Robin",
@@ -240,12 +252,14 @@
             "services": {
               "title": "Services",
               "type": "array",
+              "minItems": 1,
               "items": {
                 "type": "object",
+                "title": "Service",
                 "properties": {
                   "name": {
                     "title": "Name",
-                    "type": "string",
+                    "$ref": "#/$defs/service",
                     "description": "The referenced service identifier"
                   },
                   "weight": {
@@ -278,6 +292,7 @@
     },
     {
       "type": "object",
+      "title": "Mirroring",
       "properties": {
         "mirroring": {
           "title": "Mirroring",
@@ -285,7 +300,7 @@
           "properties": {
             "service": {
               "title": "Service",
-              "type": "string",
+              "$ref": "#/$defs/service",
               "description": "The primary service receiving traffic"
             },
             "mirrorBody": {
@@ -303,12 +318,14 @@
             "mirrors": {
               "title": "Mirrors",
               "type": "array",
+              "minItems": 1,
               "items": {
+                "title": "Service",
                 "type": "object",
                 "properties": {
                   "name": {
                     "title": "Name",
-                    "type": "string",
+                    "$ref": "#/$defs/service",
                     "description": "Service identifier to mirror traffic to"
                   },
                   "percent": {
@@ -342,6 +359,7 @@
     },
     {
       "type": "object",
+      "title": "Failover",
       "properties": {
         "failover": {
           "title": "Failover",
@@ -349,12 +367,12 @@
           "properties": {
             "service": {
               "title": "Service",
-              "type": "string",
+              "$ref": "#/$defs/service",
               "description": "The primary service that receives traffic initially"
             },
             "fallback": {
               "title": "Fallback",
-              "type": "string",
+              "$ref": "#/$defs/service",
               "description": "The backup service activated when the main service becomes unreachable"
             },
             "sticky": {

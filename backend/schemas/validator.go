@@ -4,7 +4,6 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 

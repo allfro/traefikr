@@ -62,981 +62,1141 @@
     }
   },
   "type": "object",
-  "properties": {
-    "addPrefix": {
+  "oneOf": [
+    {
       "title": "Add Prefix",
-      "type": "object",
       "properties": {
-        "prefix": {
-          "title": "Prefix",
-          "type": "string",
-          "default": "",
-          "description": "Text prepended to the current request path"
-        }
-      },
-      "required": ["prefix"],
-      "additionalProperties": false,
-      "description": "Adds a path prefix"
-    },
-    "basicAuth": {
-      "title": "Basic Authentication",
-      "type": "object",
-      "properties": {
-        "users": {
-          "title": "Users",
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "description": "List of authorized users in name:hashed-password format"
-        },
-        "usersFile": {
-          "title": "Users File",
-          "type": "string",
-          "default": "",
-          "description": "Path to external file containing name:hashed-password entries"
-        },
-        "realm": {
-          "title": "Realm",
-          "type": "string",
-          "default": "traefik",
-          "description": "Customizable authentication realm"
-        },
-        "headerField": {
-          "title": "Header Field",
-          "type": "string",
-          "default": "",
-          "description": "Header field to store the authenticated user"
-        },
-        "removeHeader": {
-          "title": "Remove Header",
-          "type": "boolean",
-          "default": false,
-          "description": "Remove authorization header before forwarding to service"
-        }
-      },
-      "additionalProperties": false,
-      "description": "Adds Basic Authentication"
-    },
-    "buffering": {
-      "title": "Buffering",
-      "type": "object",
-      "properties": {
-        "maxRequestBodyBytes": {
-          "title": "Max Request Body Bytes",
-          "type": "integer",
-          "default": 0,
-          "description": "Maximum allowed body size for the request (in bytes)"
-        },
-        "memRequestBodyBytes": {
-          "title": "Mem Request Body Bytes",
-          "type": "integer",
-          "default": 1048576,
-          "description": "Threshold in bytes before buffering to disk instead of memory"
-        },
-        "maxResponseBodyBytes": {
-          "title": "Max Response Body Bytes",
-          "type": "integer",
-          "default": 0,
-          "description": "Maximum allowed response size from the Service (in bytes)"
-        },
-        "memResponseBodyBytes": {
-          "title": "Mem Response Body Bytes",
-          "type": "integer",
-          "default": 1048576,
-          "description": "Threshold in bytes before buffering responses to disk"
-        },
-        "retryExpression": {
-          "title": "Retry Expression",
-          "type": "string",
-          "default": "",
-          "description": "Logical expression for request replay"
-        }
-      },
-      "additionalProperties": false,
-      "description": "Buffers the request/response"
-    },
-    "chain": {
-      "title": "Chain",
-      "type": "object",
-      "properties": {
-        "middlewares": {
-          "title": "Middlewares",
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "description": "List of middlewares to chain"
-        }
-      },
-      "required": ["middlewares"],
-      "additionalProperties": false,
-      "description": "Combines multiple pieces of middleware"
-    },
-    "circuitBreaker": {
-      "title": "Circuit Breaker",
-      "type": "object",
-      "properties": {
-        "expression": {
-          "title": "Expression",
-          "type": "string",
-          "default": "100ms",
-          "description": "Condition determining when to activate fallback mechanism"
-        },
-        "checkPeriod": {
-          "title": "Check Period",
-          "type": "string",
-          "default": "100ms",
-          "description": "Interval for evaluating circuit breaker condition"
-        },
-        "fallbackDuration": {
-          "title": "Fallback Duration",
-          "type": "string",
-          "default": "10s",
-          "description": "How long fallback mechanism remains active"
-        },
-        "recoveryDuration": {
-          "title": "Recovery Duration",
-          "type": "string",
-          "default": "10s",
-          "description": "Duration for progressive service recovery attempts"
-        },
-        "responseCode": {
-          "title": "Response Code",
-          "type": "integer",
-          "default": 503,
-          "description": "HTTP status code returned during open state"
-        }
-      },
-      "additionalProperties": false,
-      "description": "Prevents calling unhealthy services"
-    },
-    "compress": {
-      "title": "Compress",
-      "type": "object",
-      "properties": {
-        "excludedContentTypes": {
-          "title": "Excluded Content Types",
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "description": "Content types to skip compression"
-        },
-        "defaultEncoding": {
-          "title": "Default Encoding",
-          "type": "string",
-          "default": "",
-          "description": "Fallback encoding when Accept-Encoding header absent"
-        },
-        "encodings": {
-          "title": "Encodings",
-          "type": "array",
-          "default": ["gzip", "br", "zstd"],
-          "items": {
-            "type": "string"
-          },
-          "description": "Supported compression types in priority order"
-        },
-        "includedContentTypes": {
-          "title": "Included Content Types",
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "description": "Content types to compress"
-        },
-        "minResponseBodyBytes": {
-          "title": "Min Response Body Bytes",
-          "type": "integer",
-          "default": 1024,
-          "description": "Minimum response size in bytes before compression applies"
-        }
-      },
-      "additionalProperties": false,
-      "description": "Compresses the response"
-    },
-    "contentType": {
-      "title": "Content Type",
-      "type": "object",
-      "default": {},
-      "additionalProperties": false,
-      "description": "Handles Content-Type auto-detection"
-    },
-    "digestAuth": {
-      "title": "Digest Authentication",
-      "type": "object",
-      "properties": {
-        "users": {
-          "title": "Users",
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "description": "Array of authorized users in name:realm:encoded-password format"
-        },
-        "usersFile": {
-          "title": "Users File",
-          "default": "",
-          "type": "string",
-          "description": "Path to external file containing authorized users"
-        },
-        "realm": {
-          "title": "Realm",
-          "type": "string",
-          "default": "traefik",
-          "description": "Custom authentication realm identifier"
-        },
-        "headerField": {
-          "title": "Header Field",
-          "default": "",
-          "type": "string",
-          "description": "Header field name for storing authenticated user information"
-        },
-        "removeHeader": {
-          "title": "Remove Header",
-          "type": "boolean",
-          "default": false,
-          "description": "Strip authorization header before forwarding requests downstream"
-        }
-      },
-      "additionalProperties": false,
-      "description": "Adds Digest Authentication"
-    },
-    "errors": {
-      "title": "Error Pages",
-      "type": "object",
-      "properties": {
-        "status": {
-          "title": "Status",
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "description": "Status codes or ranges that should result in an error page"
-        },
-        "statusRewrites": {
-          "title": "Status Rewrites",
-          "type": "object",
-          "default": {},
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Mapping to rewrite status codes to different values"
-        },
-        "service": {
-          "title": "Service",
-          "default": "",
-          "type": "string",
-          "description": "The service that will serve the new requested error page"
-        },
-        "query": {
-          "title": "Query",
-          "type": "string",
-          "default": "",
-          "description": "The URL for the error page"
-        }
-      },
-      "additionalProperties": false,
-      "description": "Defines custom error pages"
-    },
-    "forwardAuth": {
-      "title": "Forward Authentication",
-      "type": "object",
-      "properties": {
-        "address": {
-          "title": "Address",
-          "default": "",
-          "type": "string",
-          "description": "Authentication server address"
-        },
-        "trustForwardHeader": {
-          "title": "Trust Forward Header",
-          "type": "boolean",
-          "default": false,
-          "description": "Trust all X-Forwarded-* headers"
-        },
-        "authResponseHeaders": {
-          "title": "Auth Response Headers",
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "description": "Headers to copy from auth server response"
-        },
-        "authResponseHeadersRegex": {
-          "title": "Auth Response Headers Regex",
-          "default": "",
-          "type": "string",
-          "description": "Regex pattern to match response headers"
-        },
-        "authRequestHeaders": {
-          "title": "Auth Request Headers",
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "description": "Headers to forward to auth server"
-        },
-        "addAuthCookiesToResponse": {
-          "title": "Add Auth Cookies To Response",
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "description": "Cookies to copy from auth server"
-        },
-        "forwardBody": {
-          "title": "Forward Body",
-          "type": "boolean",
-          "default": false,
-          "description": "Send request body to auth server"
-        },
-        "maxBodySize": {
-          "title": "Max Body Size",
-          "type": "integer",
-          "default": -1,
-          "description": "Max body size in bytes (-1 = unlimited)"
-        },
-        "headerField": {
-          "title": "Header Field",
-          "type": "string",
-          "default": "",
-          "description": "Header field for authenticated user"
-        },
-        "preserveLocationHeader": {
-          "title": "Preserve Location Header",
-          "type": "boolean",
-          "default": false,
-          "description": "Forward Location header as-is"
-        },
-        "preserveRequestMethod": {
-          "title": "Preserve Request Method",
-          "type": "boolean",
-          "default": false,
-          "description": "Preserve original HTTP method"
-        },
-        "tls": {
-          "$ref": "#/$defs/tlsConfig"
-        }
-      },
-      "required": ["address"],
-      "additionalProperties": false,
-      "description": "Delegates Authentication"
-    },
-    "grpcWeb": {
-      "title": "gRPC Web",
-      "type": "object",
-      "properties": {
-        "allowOrigins": {
-          "title": "Allow Origins",
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
-          },
-          "description": "List of allowed origins for CORS"
-        }
-      },
-      "additionalProperties": false,
-      "description": "Converts gRPC Web requests to HTTP/2 gRPC"
-    },
-    "headers": {
-      "title": "Headers",
-      "type": "object",
-      "properties": {
-        "customRequestHeaders": {
-          "title": "Custom Request Headers",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Header names and values for requests"
-        },
-        "customResponseHeaders": {
-          "title": "Custom Response Headers",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Header names and values for responses"
-        },
-        "accessControlAllowCredentials": {
-          "title": "Access Control Allow Credentials",
-          "type": "boolean",
-          "default": false,
-          "description": "Allows user credentials in requests"
-        },
-        "accessControlAllowHeaders": {
-          "title": "Access Control Allow Headers",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Permitted request header names"
-        },
-        "accessControlAllowMethods": {
-          "title": "Access Control Allow Methods",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Permitted request methods"
-        },
-        "accessControlAllowOriginList": {
-          "title": "Access Control Allow Origin List",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Allowed origin domains"
-        },
-        "accessControlAllowOriginListRegex": {
-          "title": "Access Control Allow Origin List Regex",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Origins matching regex patterns"
-        },
-        "accessControlExposeHeaders": {
-          "title": "Access Control Expose Headers",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Headers safe to expose via CORS"
-        },
-        "accessControlMaxAge": {
-          "title": "Access Control Max Age",
-          "type": "integer",
-          "default": 0,
-          "description": "Preflight request cache time (seconds)"
-        },
-        "addVaryHeader": {
-          "title": "Add Vary Header",
-          "type": "boolean",
-          "default": false,
-          "description": "Adds Vary header for origin variations"
-        },
-        "allowedHosts": {
-          "title": "Allowed Hosts",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Permitted domain names"
-        },
-        "hostsProxyHeaders": {
-          "title": "Hosts Proxy Headers",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "Header keys for proxied hostnames"
-        },
-        "sslProxyHeaders": {
-          "title": "SSL Proxy Headers",
-          "type": "object",
-          "additionalProperties": {
-            "type": "string"
-          },
-          "description": "Headers indicating valid HTTPS requests"
-        },
-        "stsSeconds": {
-          "title": "STS Seconds",
-          "type": "integer",
-          "description": "Strict-Transport-Security max age"
-        },
-        "stsIncludeSubdomains": {
-          "title": "STS Include Subdomains",
-          "type": "boolean",
-          "default": false,
-          "description": "Appends includeSubDomains to STS"
-        },
-        "stsPreload": {
-          "title": "STS Preload",
-          "type": "boolean",
-          "default": false,
-          "description": "Adds preload flag to STS header"
-        },
-        "forceSTSHeader": {
-          "title": "Force STS Header",
-          "type": "boolean",
-          "default": false,
-          "description": "Adds STS header for HTTP"
-        },
-        "frameDeny": {
-          "title": "Frame Deny",
-          "type": "boolean",
-          "default": false,
-          "description": "Sets X-Frame-Options to DENY"
-        },
-        "customFrameOptionsValue": {
-          "title": "Custom Frame Options Value",
-          "type": "string",
-          "default": "",
-          "description": "Custom X-Frame-Options value"
-        },
-        "contentTypeNosniff": {
-          "title": "Content Type Nosniff",
-          "type": "boolean",
-          "default": false,
-          "description": "Adds X-Content-Type-Options: nosniff"
-        },
-        "browserXssFilter": {
-          "title": "Browser XSS Filter",
-          "type": "boolean",
-          "default": false,
-          "description": "Adds X-XSS-Protection header"
-        },
-        "customBrowserXSSValue": {
-          "title": "Custom Browser XSS Value",
-          "type": "string",
-          "description": "Custom X-XSS-Protection value"
-        },
-        "contentSecurityPolicy": {
-          "title": "Content Security Policy",
-          "type": "string",
-          "description": "Custom CSP header value"
-        },
-        "contentSecurityPolicyReportOnly": {
-          "title": "Content Security Policy Report Only",
-          "type": "string",
-          "default": "",
-          "description": "CSP-Report-Only header value"
-        },
-        "publicKey": {
-          "title": "Public Key",
-          "type": "string",
-          "default": "",
-          "description": "HPKP certificate pinning"
-        },
-        "referrerPolicy": {
-          "title": "Referrer Policy",
-          "type": "string",
-          "default": "",
-          "description": "Referer header control"
-        },
-        "permissionsPolicy": {
-          "title": "Permissions Policy",
-          "type": "string",
-          "default": "",
-          "description": "Browser features control"
-        },
-        "isDevelopment": {
-          "title": "Is Development",
-          "type": "boolean",
-          "default": false,
-          "description": "Mitigates AllowedHosts/SSL/STS restrictions"
-        }
-      },
-      "additionalProperties": false,
-      "description": "Adds / Updates headers"
-    },
-    "ipAllowList": {
-      "title": "IP Allow List",
-      "type": "object",
-      "properties": {
-        "sourceRange": {
-          "title": "Source Range",
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "List of allowed IPs or CIDR ranges"
-        },
-        "ipStrategy": {
-          "$ref": "#/$defs/ipStrategy"
-        }
-      },
-      "required": ["sourceRange"],
-      "additionalProperties": false,
-      "description": "Limits the allowed client IPs"
-    },
-    "inFlightReq": {
-      "title": "In-Flight Requests",
-      "type": "object",
-      "properties": {
-        "amount": {
-          "title": "Amount",
-          "type": "integer",
-          "default": 0,
-          "description": "Maximum simultaneous in-flight requests allowed"
-        },
-        "sourceCriterion": {
-          "title": "Source Criterion",
+        "addPrefix": {
+          "title": "Add Prefix",
           "type": "object",
           "properties": {
-            "requestHost": {
-              "title": "Request Host",
-              "type": "boolean",
-              "default": false,
-              "description": "Uses the request host as the source identifier"
-            },
-            "requestHeaderName": {
-              "title": "Request Header Name",
+            "prefix": {
+              "title": "Prefix",
               "type": "string",
               "default": "",
-              "description": "Groups by a specified custom header name"
-            },
-            "ipStrategy": {
-              "$ref": "#/$defs/ipStrategy"
+              "description": "Text prepended to the current request path"
             }
           },
+          "required": ["prefix"],
           "additionalProperties": false,
-          "description": "Defines how requests are grouped by origin"
+          "description": "Adds a path prefix"
         }
       },
-      "additionalProperties": false,
-      "description": "Limits the number of simultaneous connections"
+      "required": ["addPrefix"],
+      "additionalProperties": false
     },
-    "passTLSClientCert": {
-      "title": "Pass TLS Client Certificate",
-      "type": "object",
+    {
+      "title": "Basic Authentication",
       "properties": {
-        "pem": {
-          "title": "PEM",
-          "type": "boolean",
-          "default": false,
-          "description": "Populates the X-Forwarded-Tls-Client-Cert header"
-        },
-        "info": {
-          "title": "Info",
+        "basicAuth": {
+          "title": "Basic Authentication",
           "type": "object",
           "properties": {
-            "notAfter": {
-              "title": "Not After",
-              "type": "boolean",
-              "default": false,
-              "description": "Includes certificate expiration date"
-            },
-            "notBefore": {
-              "title": "Not Before",
-              "type": "boolean",
-              "default": false,
-              "description": "Includes certificate validity start date"
-            },
-            "sans": {
-              "title": "SANs",
-              "type": "boolean",
-              "default": false,
-              "description": "Includes Subject Alternative Names"
-            },
-            "serialNumber": {
-              "title": "Serial Number",
-              "type": "boolean",
-              "default": false,
-              "description": "Includes certificate serial number"
-            },
-            "subject": {
-              "title": "Subject",
-              "type": "object",
-              "properties": {
-                "country": {"type": "boolean", "default": false},
-                "province": {"type": "boolean", "default": false},
-                "locality": {"type": "boolean", "default": false},
-                "organization": {"type": "boolean", "default": false},
-                "organizationalUnit": {"type": "boolean", "default": false},
-                "commonName": {"type": "boolean", "default": false},
-                "serialNumber": {"type": "boolean", "default": false},
-                "domainComponent": {"type": "boolean", "default": false}
-              },
-              "additionalProperties": false
-            },
-            "issuer": {
-              "title": "Issuer",
-              "type": "object",
-              "properties": {
-                "country": {"type": "boolean", "default": false},
-                "province": {"type": "boolean", "default": false},
-                "locality": {"type": "boolean", "default": false},
-                "organization": {"type": "boolean", "default": false},
-                "organizationalUnit": {"type": "boolean", "default": false},
-                "commonName": {"type": "boolean", "default": false},
-                "serialNumber": {"type": "boolean", "default": false},
-                "domainComponent": {"type": "boolean", "default": false}
-              },
-              "additionalProperties": false
-            }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false,
-      "description": "Adds Client Certificates in a Header"
-    },
-    "rateLimit": {
-      "title": "Rate Limit",
-      "type": "object",
-      "properties": {
-        "average": {
-          "title": "Average",
-          "type": "integer",
-          "default": 0,
-          "description": "Number of requests used to define the rate"
-        },
-        "period": {
-          "title": "Period",
-          "type": "string",
-          "default": "1s",
-          "description": "Duration used to calculate request rate"
-        },
-        "burst": {
-          "title": "Burst",
-          "type": "integer",
-          "default": 1,
-          "description": "Maximum number of requests allowed at the same moment"
-        },
-        "sourceCriterion": {
-          "title": "Source Criterion",
-          "type": "object",
-          "properties": {
-            "requestHost": {
-              "title": "Request Host",
-              "type": "boolean",
-              "default": false,
-              "description": "Groups requests by host header"
-            },
-            "requestHeaderName": {
-              "title": "Request Header Name",
-              "type": "string",
-              "default": "",
-              "description": "Custom header name for grouping requests"
-            },
-            "ipStrategy": {
-              "$ref": "#/$defs/ipStrategy"
-            }
-          },
-          "additionalProperties": false
-        },
-        "redis": {
-          "title": "Redis",
-          "type": "object",
-          "properties": {
-            "endpoints": {
-              "title": "Endpoints",
+            "users": {
+              "title": "Users",
               "type": "array",
-              "default": ["127.0.0.1:6379"],
+              "default": [],
               "items": {
                 "type": "string"
               },
-              "description": "Redis server endpoints for clustering"
+              "description": "List of authorized users in name:hashed-password format"
             },
-            "username": {
-              "title": "Username",
+            "usersFile": {
+              "title": "Users File",
               "type": "string",
               "default": "",
-              "description": "Authentication username"
+              "description": "Path to external file containing name:hashed-password entries"
             },
-            "password": {
-              "title": "Password",
+            "realm": {
+              "title": "Realm",
+              "type": "string",
+              "default": "traefik",
+              "description": "Customizable authentication realm"
+            },
+            "headerField": {
+              "title": "Header Field",
               "type": "string",
               "default": "",
-              "description": "Authentication password"
+              "description": "Header field to store the authenticated user"
             },
-            "db": {
-              "title": "Database",
+            "removeHeader": {
+              "title": "Remove Header",
+              "type": "boolean",
+              "default": false,
+              "description": "Remove authorization header before forwarding to service"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Adds Basic Authentication"
+        }
+      },
+      "required": ["basicAuth"],
+      "additionalProperties": false
+    },
+    {
+      "title": "Buffering",
+      "properties": {
+        "buffering": {
+          "title": "Buffering",
+          "type": "object",
+          "properties": {
+            "maxRequestBodyBytes": {
+              "title": "Max Request Body Bytes",
               "type": "integer",
               "default": 0,
-              "description": "Database number selection"
+              "description": "Maximum allowed body size for the request (in bytes)"
             },
-            "poolSize": {
-              "title": "Pool Size",
+            "memRequestBodyBytes": {
+              "title": "Mem Request Body Bytes",
+              "type": "integer",
+              "default": 1048576,
+              "description": "Threshold in bytes before buffering to disk instead of memory"
+            },
+            "maxResponseBodyBytes": {
+              "title": "Max Response Body Bytes",
               "type": "integer",
               "default": 0,
-              "description": "Base socket connections in pool"
+              "description": "Maximum allowed response size from the Service (in bytes)"
             },
-            "minIdleConns": {
-              "title": "Min Idle Connections",
+            "memResponseBodyBytes": {
+              "title": "Mem Response Body Bytes",
               "type": "integer",
-              "default": 0,
-              "description": "Minimum idle connections maintained"
+              "default": 1048576,
+              "description": "Threshold in bytes before buffering responses to disk"
             },
-            "maxActiveConns": {
-              "title": "Max Active Connections",
-              "type": "integer",
-              "default": 0,
-              "description": "Maximum concurrent connections"
-            },
-            "readTimeout": {
-              "title": "Read Timeout",
+            "retryExpression": {
+              "title": "Retry Expression",
               "type": "string",
-              "default": "3s",
-              "description": "Socket read timeout"
-            },
-            "writeTimeout": {
-              "title": "Write Timeout",
+              "default": "",
+              "description": "Logical expression for request replay"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Buffers the request/response"
+        }
+      },
+      "required": ["buffering"],
+      "additionalProperties": false
+    },
+    {
+      "title": "Chain",
+      "properties": {
+        "chain": {
+          "title": "Chain",
+          "type": "object",
+          "properties": {
+            "middlewares": {
+              "title": "Middlewares",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "description": "List of middlewares to chain"
+            }
+          },
+          "required": ["middlewares"],
+          "additionalProperties": false,
+          "description": "Combines multiple pieces of middleware"
+        }
+      },
+      "required": ["chain"],
+      "additionalProperties": false
+    },
+    {
+      "title": "Circuit Breaker",
+      "properties": {
+        "circuitBreaker": {
+          "title": "Circuit Breaker",
+          "type": "object",
+          "properties": {
+            "expression": {
+              "title": "Expression",
               "type": "string",
-              "default": "3s",
-              "description": "Socket write timeout"
+              "default": "100ms",
+              "description": "Condition determining when to activate fallback mechanism"
             },
-            "dialTimeout": {
-              "title": "Dial Timeout",
+            "checkPeriod": {
+              "title": "Check Period",
               "type": "string",
-              "default": "5s",
-              "description": "Connection establishment timeout"
+              "default": "100ms",
+              "description": "Interval for evaluating circuit breaker condition"
+            },
+            "fallbackDuration": {
+              "title": "Fallback Duration",
+              "type": "string",
+              "default": "10s",
+              "description": "How long fallback mechanism remains active"
+            },
+            "recoveryDuration": {
+              "title": "Recovery Duration",
+              "type": "string",
+              "default": "10s",
+              "description": "Duration for progressive service recovery attempts"
+            },
+            "responseCode": {
+              "title": "Response Code",
+              "type": "integer",
+              "default": 503,
+              "description": "HTTP status code returned during open state"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Prevents calling unhealthy services"
+        }
+      },
+      "required": ["circuitBreaker"],
+      "additionalProperties": false
+    },
+    {
+      "title": "Compress",
+      "properties": {
+        "compress": {
+          "title": "Compress",
+          "type": "object",
+          "properties": {
+            "excludedContentTypes": {
+              "title": "Excluded Content Types",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "description": "Content types to skip compression"
+            },
+            "defaultEncoding": {
+              "title": "Default Encoding",
+              "type": "string",
+              "default": "",
+              "description": "Fallback encoding when Accept-Encoding header absent"
+            },
+            "encodings": {
+              "title": "Encodings",
+              "type": "array",
+              "default": ["gzip", "br", "zstd"],
+              "items": {
+                "type": "string"
+              },
+              "description": "Supported compression types in priority order"
+            },
+            "includedContentTypes": {
+              "title": "Included Content Types",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "description": "Content types to compress"
+            },
+            "minResponseBodyBytes": {
+              "title": "Min Response Body Bytes",
+              "type": "integer",
+              "default": 1024,
+              "description": "Minimum response size in bytes before compression applies"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Compresses the response"
+        }
+      },
+      "required": ["compress"],
+      "additionalProperties": false
+    },
+    {
+      "title": "Content Type",
+      "properties": {
+        "contentType": {
+          "title": "Content Type",
+          "type": "object",
+          "default": {},
+          "additionalProperties": false,
+          "description": "Handles Content-Type auto-detection"
+        }
+      },
+      "required": ["contentType"],
+      "additionalProperties": false
+    },
+    {
+      "title": "Digest Authentication",
+      "properties": {
+        "digestAuth": {
+          "title": "Digest Authentication",
+          "type": "object",
+          "properties": {
+            "users": {
+              "title": "Users",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "description": "Array of authorized users in name:realm:encoded-password format"
+            },
+            "usersFile": {
+              "title": "Users File",
+              "default": "",
+              "type": "string",
+              "description": "Path to external file containing authorized users"
+            },
+            "realm": {
+              "title": "Realm",
+              "type": "string",
+              "default": "traefik",
+              "description": "Custom authentication realm identifier"
+            },
+            "headerField": {
+              "title": "Header Field",
+              "default": "",
+              "type": "string",
+              "description": "Header field name for storing authenticated user information"
+            },
+            "removeHeader": {
+              "title": "Remove Header",
+              "type": "boolean",
+              "default": false,
+              "description": "Strip authorization header before forwarding requests downstream"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Adds Digest Authentication"
+        }
+      },
+      "required": ["digestAuth"],
+      "additionalProperties": false
+    },
+    {
+      "title": "Error Pages",
+      "properties": {
+        "errors": {
+          "title": "Error Pages",
+          "type": "object",
+          "properties": {
+            "status": {
+              "title": "Status",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "description": "Status codes or ranges that should result in an error page"
+            },
+            "statusRewrites": {
+              "title": "Status Rewrites",
+              "type": "object",
+              "default": {},
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Mapping to rewrite status codes to different values"
+            },
+            "service": {
+              "title": "Service",
+              "default": "",
+              "type": "string",
+              "description": "The service that will serve the new requested error page"
+            },
+            "query": {
+              "title": "Query",
+              "type": "string",
+              "default": "",
+              "description": "The URL for the error page"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Defines custom error pages"
+        }
+      },
+      "required": ["errors"],
+      "additionalProperties": false
+    },
+    {
+      "title": "Forward Authentication",
+      "properties": {
+        "forwardAuth": {
+          "title": "Forward Authentication",
+          "type": "object",
+          "properties": {
+            "address": {
+              "title": "Address",
+              "default": "",
+              "type": "string",
+              "description": "Authentication server address"
+            },
+            "trustForwardHeader": {
+              "title": "Trust Forward Header",
+              "type": "boolean",
+              "default": false,
+              "description": "Trust all X-Forwarded-* headers"
+            },
+            "authResponseHeaders": {
+              "title": "Auth Response Headers",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "description": "Headers to copy from auth server response"
+            },
+            "authResponseHeadersRegex": {
+              "title": "Auth Response Headers Regex",
+              "default": "",
+              "type": "string",
+              "description": "Regex pattern to match response headers"
+            },
+            "authRequestHeaders": {
+              "title": "Auth Request Headers",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "description": "Headers to forward to auth server"
+            },
+            "addAuthCookiesToResponse": {
+              "title": "Add Auth Cookies To Response",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "description": "Cookies to copy from auth server"
+            },
+            "forwardBody": {
+              "title": "Forward Body",
+              "type": "boolean",
+              "default": false,
+              "description": "Send request body to auth server"
+            },
+            "maxBodySize": {
+              "title": "Max Body Size",
+              "type": "integer",
+              "default": -1,
+              "description": "Max body size in bytes (-1 = unlimited)"
+            },
+            "headerField": {
+              "title": "Header Field",
+              "type": "string",
+              "default": "",
+              "description": "Header field for authenticated user"
+            },
+            "preserveLocationHeader": {
+              "title": "Preserve Location Header",
+              "type": "boolean",
+              "default": false,
+              "description": "Forward Location header as-is"
+            },
+            "preserveRequestMethod": {
+              "title": "Preserve Request Method",
+              "type": "boolean",
+              "default": false,
+              "description": "Preserve original HTTP method"
             },
             "tls": {
               "$ref": "#/$defs/tlsConfig"
             }
           },
-          "additionalProperties": false
+          "required": ["address"],
+          "additionalProperties": false,
+          "description": "Delegates Authentication"
         }
       },
-      "additionalProperties": false,
-      "description": "Limits the call frequency"
+      "required": ["forwardAuth"],
+      "additionalProperties": false
     },
-    "redirectScheme": {
+    {
+      "title": "gRPC Web",
+      "properties": {
+        "grpcWeb": {
+          "title": "gRPC Web",
+          "type": "object",
+          "properties": {
+            "allowOrigins": {
+              "title": "Allow Origins",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "description": "List of allowed origins for CORS"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Converts gRPC Web requests to HTTP/2 gRPC"
+        }
+      },
+      "required": ["grpcWeb"],
+      "additionalProperties": false
+    },
+    {
+      "title": "Headers",
+      "properties": {
+        "headers": {
+          "title": "Headers",
+          "type": "object",
+          "properties": {
+            "customRequestHeaders": {
+              "title": "Custom Request Headers",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Header names and values for requests"
+            },
+            "customResponseHeaders": {
+              "title": "Custom Response Headers",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Header names and values for responses"
+            },
+            "accessControlAllowCredentials": {
+              "title": "Access Control Allow Credentials",
+              "type": "boolean",
+              "default": false,
+              "description": "Allows user credentials in requests"
+            },
+            "accessControlAllowHeaders": {
+              "title": "Access Control Allow Headers",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Permitted request header names"
+            },
+            "accessControlAllowMethods": {
+              "title": "Access Control Allow Methods",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Permitted request methods"
+            },
+            "accessControlAllowOriginList": {
+              "title": "Access Control Allow Origin List",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Allowed origin domains"
+            },
+            "accessControlAllowOriginListRegex": {
+              "title": "Access Control Allow Origin List Regex",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Origins matching regex patterns"
+            },
+            "accessControlExposeHeaders": {
+              "title": "Access Control Expose Headers",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Headers safe to expose via CORS"
+            },
+            "accessControlMaxAge": {
+              "title": "Access Control Max Age",
+              "type": "integer",
+              "default": 0,
+              "description": "Preflight request cache time (seconds)"
+            },
+            "addVaryHeader": {
+              "title": "Add Vary Header",
+              "type": "boolean",
+              "default": false,
+              "description": "Adds Vary header for origin variations"
+            },
+            "allowedHosts": {
+              "title": "Allowed Hosts",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Permitted domain names"
+            },
+            "hostsProxyHeaders": {
+              "title": "Hosts Proxy Headers",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Header keys for proxied hostnames"
+            },
+            "sslProxyHeaders": {
+              "title": "SSL Proxy Headers",
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "Headers indicating valid HTTPS requests"
+            },
+            "stsSeconds": {
+              "title": "STS Seconds",
+              "type": "integer",
+              "description": "Strict-Transport-Security max age"
+            },
+            "stsIncludeSubdomains": {
+              "title": "STS Include Subdomains",
+              "type": "boolean",
+              "default": false,
+              "description": "Appends includeSubDomains to STS"
+            },
+            "stsPreload": {
+              "title": "STS Preload",
+              "type": "boolean",
+              "default": false,
+              "description": "Adds preload flag to STS header"
+            },
+            "forceSTSHeader": {
+              "title": "Force STS Header",
+              "type": "boolean",
+              "default": false,
+              "description": "Adds STS header for HTTP"
+            },
+            "frameDeny": {
+              "title": "Frame Deny",
+              "type": "boolean",
+              "default": false,
+              "description": "Sets X-Frame-Options to DENY"
+            },
+            "customFrameOptionsValue": {
+              "title": "Custom Frame Options Value",
+              "type": "string",
+              "default": "",
+              "description": "Custom X-Frame-Options value"
+            },
+            "contentTypeNosniff": {
+              "title": "Content Type Nosniff",
+              "type": "boolean",
+              "default": false,
+              "description": "Adds X-Content-Type-Options: nosniff"
+            },
+            "browserXssFilter": {
+              "title": "Browser XSS Filter",
+              "type": "boolean",
+              "default": false,
+              "description": "Adds X-XSS-Protection header"
+            },
+            "customBrowserXSSValue": {
+              "title": "Custom Browser XSS Value",
+              "type": "string",
+              "description": "Custom X-XSS-Protection value"
+            },
+            "contentSecurityPolicy": {
+              "title": "Content Security Policy",
+              "type": "string",
+              "description": "Custom CSP header value"
+            },
+            "contentSecurityPolicyReportOnly": {
+              "title": "Content Security Policy Report Only",
+              "type": "string",
+              "default": "",
+              "description": "CSP-Report-Only header value"
+            },
+            "publicKey": {
+              "title": "Public Key",
+              "type": "string",
+              "default": "",
+              "description": "HPKP certificate pinning"
+            },
+            "referrerPolicy": {
+              "title": "Referrer Policy",
+              "type": "string",
+              "default": "",
+              "description": "Referer header control"
+            },
+            "permissionsPolicy": {
+              "title": "Permissions Policy",
+              "type": "string",
+              "default": "",
+              "description": "Browser features control"
+            },
+            "isDevelopment": {
+              "title": "Is Development",
+              "type": "boolean",
+              "default": false,
+              "description": "Mitigates AllowedHosts/SSL/STS restrictions"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Adds / Updates headers"
+        }
+      },
+      "required": ["headers"],
+      "additionalProperties": false
+    },
+    {
+      "title": "IP Allow List",
+      "properties": {
+        "ipAllowList": {
+          "title": "IP Allow List",
+          "type": "object",
+          "properties": {
+            "sourceRange": {
+              "title": "Source Range",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of allowed IPs or CIDR ranges"
+            },
+            "ipStrategy": {
+              "$ref": "#/$defs/ipStrategy"
+            }
+          },
+          "required": ["sourceRange"],
+          "additionalProperties": false,
+          "description": "Limits the allowed client IPs"
+        }
+      },
+      "required": ["ipAllowList"],
+      "additionalProperties": false
+    },
+    {
+      "title": "In-Flight Requests",
+      "properties": {
+        "inFlightReq": {
+          "title": "In-Flight Requests",
+          "type": "object",
+          "properties": {
+            "amount": {
+              "title": "Amount",
+              "type": "integer",
+              "default": 0,
+              "description": "Maximum simultaneous in-flight requests allowed"
+            },
+            "sourceCriterion": {
+              "title": "Source Criterion",
+              "type": "object",
+              "properties": {
+                "requestHost": {
+                  "title": "Request Host",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Uses the request host as the source identifier"
+                },
+                "requestHeaderName": {
+                  "title": "Request Header Name",
+                  "type": "string",
+                  "default": "",
+                  "description": "Groups by a specified custom header name"
+                },
+                "ipStrategy": {
+                  "$ref": "#/$defs/ipStrategy"
+                }
+              },
+              "additionalProperties": false,
+              "description": "Defines how requests are grouped by origin"
+            }
+          },
+          "additionalProperties": false,
+          "description": "Limits the number of simultaneous connections"
+        }
+      },
+      "required": ["inFlightReq"],
+      "additionalProperties": false
+    },
+    {
+      "title": "Pass TLS Client Certificate",
+      "properties": {
+        "passTLSClientCert": {
+          "title": "Pass TLS Client Certificate",
+          "type": "object",
+          "properties": {
+            "pem": {
+              "title": "PEM",
+              "type": "boolean",
+              "default": false,
+              "description": "Populates the X-Forwarded-Tls-Client-Cert header"
+            },
+            "info": {
+              "title": "Info",
+              "type": "object",
+              "properties": {
+                "notAfter": {
+                  "title": "Not After",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Includes certificate expiration date"
+                },
+                "notBefore": {
+                  "title": "Not Before",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Includes certificate validity start date"
+                },
+                "sans": {
+                  "title": "SANs",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Includes Subject Alternative Names"
+                },
+                "serialNumber": {
+                  "title": "Serial Number",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Includes certificate serial number"
+                },
+                "subject": {
+                  "title": "Subject",
+                  "type": "object",
+                  "properties": {
+                    "country": {"type": "boolean", "default": false},
+                    "province": {"type": "boolean", "default": false},
+                    "locality": {"type": "boolean", "default": false},
+                    "organization": {"type": "boolean", "default": false},
+                    "organizationalUnit": {"type": "boolean", "default": false},
+                    "commonName": {"type": "boolean", "default": false},
+                    "serialNumber": {"type": "boolean", "default": false},
+                    "domainComponent": {"type": "boolean", "default": false}
+                  },
+                  "additionalProperties": false
+                },
+                "issuer": {
+                  "title": "Issuer",
+                  "type": "object",
+                  "properties": {
+                    "country": {"type": "boolean", "default": false},
+                    "province": {"type": "boolean", "default": false},
+                    "locality": {"type": "boolean", "default": false},
+                    "organization": {"type": "boolean", "default": false},
+                    "organizationalUnit": {"type": "boolean", "default": false},
+                    "commonName": {"type": "boolean", "default": false},
+                    "serialNumber": {"type": "boolean", "default": false},
+                    "domainComponent": {"type": "boolean", "default": false}
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false,
+          "description": "Adds Client Certificates in a Header"
+        }
+      },
+      "required": ["passTLSClientCert"],
+      "additionalProperties": false
+    },
+    {
+      "title": "Rate Limit",
+      "properties": {
+        "rateLimit": {
+          "title": "Rate Limit",
+          "type": "object",
+          "properties": {
+            "average": {
+              "title": "Average",
+              "type": "integer",
+              "default": 0,
+              "description": "Number of requests used to define the rate"
+            },
+            "period": {
+              "title": "Period",
+              "type": "string",
+              "default": "1s",
+              "description": "Duration used to calculate request rate"
+            },
+            "burst": {
+              "title": "Burst",
+              "type": "integer",
+              "default": 1,
+              "description": "Maximum number of requests allowed at the same moment"
+            },
+            "sourceCriterion": {
+              "title": "Source Criterion",
+              "type": "object",
+              "properties": {
+                "requestHost": {
+                  "title": "Request Host",
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Groups requests by host header"
+                },
+                "requestHeaderName": {
+                  "title": "Request Header Name",
+                  "type": "string",
+                  "default": "",
+                  "description": "Custom header name for grouping requests"
+                },
+                "ipStrategy": {
+                  "$ref": "#/$defs/ipStrategy"
+                }
+              },
+              "additionalProperties": false
+            },
+            "redis": {
+              "title": "Redis",
+              "type": "object",
+              "properties": {
+                "endpoints": {
+                  "title": "Endpoints",
+                  "type": "array",
+                  "default": ["127.0.0.1:6379"],
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Redis server endpoints for clustering"
+                },
+                "username": {
+                  "title": "Username",
+                  "type": "string",
+                  "default": "",
+                  "description": "Authentication username"
+                },
+                "password": {
+                  "title": "Password",
+                  "type": "string",
+                  "default": "",
+                  "description": "Authentication password"
+                },
+                "db": {
+                  "title": "Database",
+                  "type": "integer",
+                  "default": 0,
+                  "description": "Database number selection"
+                },
+                "poolSize": {
+                  "title": "Pool Size",
+                  "type": "integer",
+                  "default": 0,
+                  "description": "Base socket connections in pool"
+                },
+                "minIdleConns": {
+                  "title": "Min Idle Connections",
+                  "type": "integer",
+                  "default": 0,
+                  "description": "Minimum idle connections maintained"
+                },
+                "maxActiveConns": {
+                  "title": "Max Active Connections",
+                  "type": "integer",
+                  "default": 0,
+                  "description": "Maximum concurrent connections"
+                },
+                "readTimeout": {
+                  "title": "Read Timeout",
+                  "type": "string",
+                  "default": "3s",
+                  "description": "Socket read timeout"
+                },
+                "writeTimeout": {
+                  "title": "Write Timeout",
+                  "type": "string",
+                  "default": "3s",
+                  "description": "Socket write timeout"
+                },
+                "dialTimeout": {
+                  "title": "Dial Timeout",
+                  "type": "string",
+                  "default": "5s",
+                  "description": "Connection establishment timeout"
+                },
+                "tls": {
+                  "$ref": "#/$defs/tlsConfig"
+                }
+              },
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false,
+          "description": "Limits the call frequency"
+        }
+      },
+      "required": ["rateLimit"],
+      "additionalProperties": false
+    },
+    {
       "title": "Redirect Scheme",
-      "type": "object",
       "properties": {
-        "scheme": {
-          "title": "Scheme",
-          "type": "string",
-          "default": "",
-          "description": "Scheme of the new URL"
-        },
-        "permanent": {
-          "title": "Permanent",
-          "type": "boolean",
-          "default": false,
-          "description": "Enable a permanent redirection"
-        },
-        "port": {
-          "title": "Port",
-          "type": "string",
-          "default": "",
-          "description": "Port of the new URL"
+        "redirectScheme": {
+          "title": "Redirect Scheme",
+          "type": "object",
+          "properties": {
+            "scheme": {
+              "title": "Scheme",
+              "type": "string",
+              "default": "",
+              "description": "Scheme of the new URL"
+            },
+            "permanent": {
+              "title": "Permanent",
+              "type": "boolean",
+              "default": false,
+              "description": "Enable a permanent redirection"
+            },
+            "port": {
+              "title": "Port",
+              "type": "string",
+              "default": "",
+              "description": "Port of the new URL"
+            }
+          },
+          "required": ["scheme"],
+          "additionalProperties": false,
+          "description": "Redirects based on scheme"
         }
       },
-      "required": ["scheme"],
-      "additionalProperties": false,
-      "description": "Redirects based on scheme"
+      "required": ["redirectScheme"],
+      "additionalProperties": false
     },
-    "redirectRegex": {
+    {
       "title": "Redirect Regex",
-      "type": "object",
       "properties": {
-        "regex": {
-          "title": "Regex",
-          "type": "string",
-          "default": "",
-          "description": "Regular expression to match and capture elements from the request URL"
-        },
-        "replacement": {
-          "title": "Replacement",
-          "type": "string",
-          "default": "",
-          "description": "Defines how to modify the URL for the new target"
-        },
-        "permanent": {
-          "title": "Permanent",
-          "type": "boolean",
-          "default": false,
-          "description": "Enables permanent (301) redirection"
+        "redirectRegex": {
+          "title": "Redirect Regex",
+          "type": "object",
+          "properties": {
+            "regex": {
+              "title": "Regex",
+              "type": "string",
+              "default": "",
+              "description": "Regular expression to match and capture elements from the request URL"
+            },
+            "replacement": {
+              "title": "Replacement",
+              "type": "string",
+              "default": "",
+              "description": "Defines how to modify the URL for the new target"
+            },
+            "permanent": {
+              "title": "Permanent",
+              "type": "boolean",
+              "default": false,
+              "description": "Enables permanent (301) redirection"
+            }
+          },
+          "required": ["regex"],
+          "additionalProperties": false,
+          "description": "Redirects based on regex"
         }
       },
-      "required": ["regex"],
-      "additionalProperties": false,
-      "description": "Redirects based on regex"
+      "required": ["redirectRegex"],
+      "additionalProperties": false
     },
-    "replacePath": {
+    {
       "title": "Replace Path",
-      "type": "object",
       "properties": {
-        "path": {
-          "title": "Path",
-          "type": "string",
-          "description": "Replacement path value"
+        "replacePath": {
+          "title": "Replace Path",
+          "type": "object",
+          "properties": {
+            "path": {
+              "title": "Path",
+              "type": "string",
+              "description": "Replacement path value"
+            }
+          },
+          "required": ["path"],
+          "additionalProperties": false,
+          "description": "Changes the path of the request"
         }
       },
-      "required": ["path"],
-      "additionalProperties": false,
-      "description": "Changes the path of the request"
+      "required": ["replacePath"],
+      "additionalProperties": false
     },
-    "replacePathRegex": {
+    {
       "title": "Replace Path Regex",
-      "type": "object",
       "properties": {
-        "regex": {
-          "title": "Regex",
-          "type": "string",
-          "description": "Regular expression to match and capture the path"
-        },
-        "replacement": {
-          "title": "Replacement",
-          "type": "string",
-          "description": "Replacement path format"
+        "replacePathRegex": {
+          "title": "Replace Path Regex",
+          "type": "object",
+          "properties": {
+            "regex": {
+              "title": "Regex",
+              "type": "string",
+              "description": "Regular expression to match and capture the path"
+            },
+            "replacement": {
+              "title": "Replacement",
+              "type": "string",
+              "description": "Replacement path format"
+            }
+          },
+          "required": ["regex"],
+          "additionalProperties": false,
+          "description": "Changes the path using regex"
         }
       },
-      "required": ["regex"],
-      "additionalProperties": false,
-      "description": "Changes the path using regex"
+      "required": ["replacePathRegex"],
+      "additionalProperties": false
     },
-    "retry": {
+    {
       "title": "Retry",
-      "type": "object",
       "properties": {
-        "attempts": {
-          "title": "Attempts",
-          "type": "integer",
-          "description": "Number of times the request should be retried"
-        },
-        "initialInterval": {
-          "title": "Initial Interval",
-          "type": "string",
-          "default": 0,
-          "description": "Initial wait duration for exponential backoff"
+        "retry": {
+          "title": "Retry",
+          "type": "object",
+          "properties": {
+            "attempts": {
+              "title": "Attempts",
+              "type": "integer",
+              "description": "Number of times the request should be retried"
+            },
+            "initialInterval": {
+              "title": "Initial Interval",
+              "type": "string",
+              "default": 0,
+              "description": "Initial wait duration for exponential backoff"
+            }
+          },
+          "required": ["attempts"],
+          "additionalProperties": false,
+          "description": "Automatically retries in case of error"
         }
       },
-      "required": ["attempts"],
-      "additionalProperties": false,
-      "description": "Automatically retries in case of error"
+      "required": ["retry"],
+      "additionalProperties": false
     },
-    "stripPrefix": {
+    {
       "title": "Strip Prefix",
-      "type": "object",
       "properties": {
-        "prefixes": {
-          "title": "Prefixes",
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
+        "stripPrefix": {
+          "title": "Strip Prefix",
+          "type": "object",
+          "properties": {
+            "prefixes": {
+              "title": "Prefixes",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "description": "List of prefixes to strip from the request URL"
+            }
           },
-          "description": "List of prefixes to strip from the request URL"
+          "additionalProperties": false,
+          "description": "Removes path prefix"
         }
       },
-      "additionalProperties": false,
-      "description": "Removes path prefix"
+      "required": ["stripPrefix"],
+      "additionalProperties": false
     },
-    "stripPrefixRegex": {
+    {
       "title": "Strip Prefix Regex",
-      "type": "object",
       "properties": {
-        "regex": {
-          "title": "Regex",
-          "type": "array",
-          "default": [],
-          "items": {
-            "type": "string"
+        "stripPrefixRegex": {
+          "title": "Strip Prefix Regex",
+          "type": "object",
+          "properties": {
+            "regex": {
+              "title": "Regex",
+              "type": "array",
+              "default": [],
+              "items": {
+                "type": "string"
+              },
+              "description": "List of regular expressions to match the path prefix"
+            }
           },
-          "description": "List of regular expressions to match the path prefix"
+          "additionalProperties": false,
+          "description": "Removes path prefix using regex"
         }
       },
-      "additionalProperties": false,
-      "description": "Removes path prefix using regex"
+      "required": ["stripPrefixRegex"],
+      "additionalProperties": false
     }
-  },
-  "additionalProperties": false
+  ]
 }

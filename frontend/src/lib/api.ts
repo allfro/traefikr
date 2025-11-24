@@ -128,8 +128,8 @@ export const resourcesApi = {
     api.post<Resource>(`/api/${protocol}/${type}`, resource),
 
   // Update resource
-  update: (protocol: Protocol, type: ResourceType, nameProvider: string, resource: UpdateResourceRequest) =>
-    api.put<Resource>(`/api/${protocol}/${type}/${nameProvider}`, resource),
+  update: (protocol: Protocol, type: ResourceType, name: string, provider: string, resource: UpdateResourceRequest) =>
+    api.put<Resource>(`/api/${protocol}/${type}/${name}@${provider}`, resource),
 
   // Delete resource
   delete: (protocol: Protocol, type: ResourceType, provider: string, name: string) =>

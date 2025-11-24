@@ -15,5 +15,6 @@ export default function useResourceParams(): { name: string; subType?: string; p
         [name, provider] = name.split('@', 2);
     }
 
+
     return {name, subType, protocol, provider};
 }
