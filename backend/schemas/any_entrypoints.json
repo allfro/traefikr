@@ -104,7 +104,8 @@
           "type": "array",
           "description": "Set the list of middlewares that are prepended by default to the list of middlewares of each router associated to the named entry point.",
           "items": {
-            "type": "string"
+            "type": "string",
+            "$comment": "type=http/middlewares"
           },
           "examples": [["auth-middleware@file", "compress@docker"]]
         },

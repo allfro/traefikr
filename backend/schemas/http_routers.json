@@ -6,13 +6,15 @@
       "title": "Entry Points",
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "$comment": "type=any/entrypoints"
       },
       "description": "The list of entry points to which the router is attached. If not specified, HTTP routers are attached to all entry points."
     },
     "rule": {
       "title": "Rule",
       "type": "string",
+      "$comment": "type=http/rules",
       "description": "Rules are a set of matchers configured with values, that determine if a particular request matches specific criteria."
     },
     "priority": {
@@ -24,13 +26,15 @@
       "title": "Middlewares",
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "$comment": "type=http/middlewares"
       },
       "description": "The list of middlewares that are applied to the router. Middlewares are applied in the order they are declared."
     },
     "service": {
       "title": "Service",
       "type": "string",
+      "$comment": "type=http/services",
       "description": "The name of the service that will handle the matched requests."
     },
     "tls": {
@@ -113,7 +117,8 @@
       "title": "Parent References",
       "type": "array",
       "items": {
-        "type": "string"
+        "type": "string",
+        "$comment": "type=http/routers"
       },
       "description": "References to parent router names for multi-layer routing."
     }

@@ -72,6 +72,7 @@ services:
       dockerfile: Dockerfile-dev
     volumes:
       - ./frontend:/frontend
+      - ./backend/schemas:/backend/schemas
     environment:
       # Only needed when frontend runs separately from backend for dev
       - VITE_TRAEFIKR_API_URL=http://api.localhost

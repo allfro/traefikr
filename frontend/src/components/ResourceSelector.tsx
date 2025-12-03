@@ -1,5 +1,5 @@
 import {useMemo} from 'react'
-import {Badge, Group, Image, Loader, Select} from '@mantine/core'
+import {Badge, Group, Loader, Select} from '@mantine/core'
 import {Protocol, Resource, ResourceType} from '../lib/api'
 import {ProviderIcon} from './ProviderIcon'
 import {useFetchResourcesQuery} from "@/hooks/useFetchResourcesQuery.tsx";
@@ -17,6 +17,7 @@ export interface ResourceSelectorProps {
     disabled?: boolean
     readonly?: boolean
     error?: string
+    unselectable?: "on" | "off" | undefined
     clearable?: boolean
 }
 
@@ -32,6 +33,7 @@ export function ResourceSelector(
         required = false,
         disabled = false,
         readonly = false,
+        unselectable = undefined,
         error,
         clearable = true,
     }: ResourceSelectorProps
@@ -61,6 +63,7 @@ export function ResourceSelector(
             data={options}
             searchable
             clearable={clearable}
+            unselectable={unselectable}
             required={required}
             disabled={disabled}
             readOnly={readonly}
@@ -70,11 +73,7 @@ export function ResourceSelector(
                 const opt = option as typeof options[0]
                 return (
                     <Group gap="xs" wrap="nowrap">
-                        {opt.source === 'database' && (
-                            <Image src={'/traefikr_logo.svg'} width={20} height={20}/>
-                        ) || (
-                            <ProviderIcon provider={opt.provider}/>
-                        )}
+                        <ProviderIcon provider={opt.provider} source={opt.source}/>
                         <span style={{flex: 1}}>{opt.label}</span>
                         {opt.enabled === false && (
                             <Badge size="xs" color="gray" variant="light">

@@ -1,40 +1,53 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "properties": {
-    "inFlightConn": {
+  "oneOf": [
+    {
       "title": "In Flight Connections",
-      "type": "object",
       "properties": {
-        "amount": {
-          "title": "Amount",
-          "type": "integer",
-          "minimum": 1,
-          "description": "The maximum number of allowed simultaneous connections. The middleware closes the connection if there are already this many connections opened."
-        }
-      },
-      "required": ["amount"],
-      "additionalProperties": false,
-      "description": "Limits the number of simultaneous connections to protect backend services from being overwhelmed"
-    },
-    "ipAllowList": {
-      "title": "IP Allow List",
-      "type": "object",
-      "properties": {
-        "sourceRange": {
-          "title": "Source Range",
-          "type": "array",
-          "items": {
-            "type": "string"
+        "inFlightConn": {
+          "title": "In Flight Connections",
+          "type": "object",
+          "properties": {
+            "amount": {
+              "title": "Amount",
+              "type": "integer",
+              "minimum": 1,
+              "description": "The maximum number of allowed simultaneous connections. The middleware closes the connection if there are already this many connections opened."
+            }
           },
-          "minItems": 1,
-          "description": "List of allowed client IPs or IP ranges using CIDR notation (e.g., 127.0.0.1/32, 192.168.1.0/24)"
+          "required": ["amount"],
+          "additionalProperties": false,
+          "description": "Limits the number of simultaneous connections to protect backend services from being overwhelmed"
         }
       },
-      "required": ["sourceRange"],
+      "required": ["inFlightConn"],
+      additionalProperties: false
+    },
+    {
+      "title": "IP Allow List",
+      "properties": {
+        "ipAllowList": {
+          "title": "IP Allow List",
+          "type": "object",
+          "properties": {
+            "sourceRange": {
+              "title": "Source Range",
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1,
+              "description": "List of allowed client IPs or IP ranges using CIDR notation (e.g., 127.0.0.1/32, 192.168.1.0/24)"
+            }
+          },
+          "required": ["sourceRange"],
+          "additionalProperties": false,
+          "description": "Restricts TCP connections to specified client IP addresses or ranges"
+        }
+      },
       "additionalProperties": false,
-      "description": "Restricts TCP connections to specified client IP addresses or ranges"
+      "required": ["ipAllowList"]
     }
-  },
-  "additionalProperties": false
+  ]
 }

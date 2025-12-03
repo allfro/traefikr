@@ -71,6 +71,10 @@ func (h *ResourceHandler) ListResources(c *gin.Context) {
 				}
 			}
 		}
+
+		if resourceType == "serversTransports" {
+			resourceMap["default@internal"] = defaultTraefikResource(protocol, resourceType)
+		}
 	}
 
 	// Override with database resources (database is source of truth)
@@ -367,6 +371,10 @@ func normalizeTraefikResource(protocol, resourceType string, traefikRes map[stri
 	provider, _ := traefikRes["provider"].(string)
 	status, _ := traefikRes["status"].(string)
 
+	if len(provider) == 0 {
+		provider = "internal"
+	}
+
 	// Create config object with all fields except metadata
 	config := make(map[string]interface{})
 	for key, value := range traefikRes {
@@ -386,7 +394,19 @@ func normalizeTraefikResource(protocol, resourceType string, traefikRes map[stri
 		"protocol": protocol,
 		"config":   config,
 		"type":     resourceType,
-		"enabled":  status == "enabled",
+		"enabled":  status == "enabled" || resourceType == "entrypoints",
+		"source":   "traefik",
+	}
+}
+
+func defaultTraefikResource(protocol, resourceType string) map[string]interface{} {
+	return map[string]interface{}{
+		"name":     "default@internal",
+		"provider": "internal",
+		"protocol": protocol,
+		"config":   map[string]interface{}{},
+		"type":     resourceType,
+		"enabled":  true,
 		"source":   "traefik",
 	}
 }

@@ -190,7 +190,8 @@
               "type": "array",
               "default": [],
               "items": {
-                "type": "string"
+                "type": "string",
+                "$comment": "type=http/middlewares"
               },
               "description": "List of middlewares to chain"
             }
@@ -308,6 +309,7 @@
         "contentType": {
           "title": "Content Type",
           "type": "object",
+          "$comment": "TODO: find out what the properties of this are",
           "default": {},
           "additionalProperties": false,
           "description": "Handles Content-Type auto-detection"
@@ -1082,6 +1084,7 @@
         "replacePath": {
           "title": "Replace Path",
           "type": "object",
+          "$comment": "TODO: find out what the properties of this are",
           "properties": {
             "path": {
               "title": "Path",

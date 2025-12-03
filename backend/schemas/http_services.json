@@ -4,7 +4,7 @@
     "service": {
       "title": "Service",
       "type": "string",
-      "$comment": "type=service",
+      "$comment": "type=http/services",
       "description": "The service identifier"
     },
     "stickyConfig": {
@@ -218,6 +218,7 @@
               "title": "Servers Transport",
               "type": "string",
               "default": "default@internal",
+              "$comment": "type=http/serversTransports",
               "description": "Reference to an HTTP ServersTransport configuration for the communication between Traefik and your servers"
             },
             "responseForwarding": {
